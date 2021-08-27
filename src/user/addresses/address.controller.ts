@@ -1,9 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
   HttpStatus,
   Post,
   Put,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -12,8 +15,10 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
+  ApiFoundResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -23,11 +28,16 @@ import { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { NS_001, NS_002, NS_003 } from 'src/core/constants/error_codes';
 import { User } from '../user.entity';
+import { Address } from './address.entity';
 import { AddressService } from './address.service';
 import { createAddressData } from './dto/param.interface';
 import { CreateAddressDto, UpdateAddressDto } from './dto/request.dto';
 import {
   CreateAddressResponse,
+  DeleteAddressResponse,
+  GetAddressesData,
+  GetAddressesResponse,
+  GetAddressResponse,
   UpdateAddressResponse,
 } from './dto/response.dto';
 
@@ -143,6 +153,148 @@ export class AddressController {
     }
     response = {
       message: 'Address updated successfully',
+      valid: true,
+    };
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  @Get('getAddresses')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
+  @ApiResponse({
+    type: GetAddressesResponse,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiFoundResponse({ description: 'Addresses fetched succcessfully' })
+  async getAddresses(@Req() req: { user: User }, @Res() res: Response) {
+    let response: GetAddressesResponse;
+
+    let addressData: GetAddressesData;
+    try {
+      addressData = await this.addressService.findByUserId(req.user.id);
+    } catch (error) {
+      console.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Addresses fetched succcessfully',
+      valid: true,
+      data: addressData,
+    };
+
+    return res.status(HttpStatus.FOUND).json(response);
+  }
+
+  @Get('getAddress')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
+  @ApiResponse({ type: GetAddressResponse })
+  @ApiQuery({
+    name: 'addressId',
+    type: String,
+    description: 'Address Id',
+    required: true,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiFoundResponse({ description: 'Address fetched succcessfully' })
+  async getAddress(
+    @Req() req: { user: User },
+    @Query('addressId') addressId: string,
+    @Res() res: Response,
+  ) {
+    let response: GetAddressResponse;
+
+    let addressData: Address;
+    try {
+      addressData = await this.addressService.findByPk(addressId);
+    } catch (error) {
+      console.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Address fetched succcessfully',
+      valid: true,
+      data: addressData,
+    };
+
+    return res.status(HttpStatus.FOUND).json(response);
+  }
+
+  @Delete('deleteAddress')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
+  @ApiResponse({ type: DeleteAddressResponse })
+  @ApiQuery({
+    name: 'addressId',
+    type: String,
+    description: 'Address Id',
+    required: true,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiUnauthorizedResponse({ description: 'Not authorized for this operation' })
+  @ApiOkResponse({ description: 'Address removed successfully' })
+  async deleteAddress(
+    @Req() req: { user: User },
+    @Query('addressId') addressId: string,
+    @Res() res: Response,
+  ) {
+    let response: DeleteAddressResponse;
+
+    let deletedAddress;
+    try {
+      deletedAddress = await this.addressService.deleteAddress(
+        addressId,
+        req.user.id,
+      );
+    } catch (error) {
+      console.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    if (!deletedAddress) {
+      response = {
+        message: 'Not authorized for this operation',
+        valid: false,
+        error: NS_003,
+        dialog: {
+          header: 'Not Authorized',
+          message: 'You are not authorized for this operation',
+        },
+      };
+      return res.status(HttpStatus.UNAUTHORIZED).json(response);
+    }
+
+    response = {
+      message: 'Address removed successfully',
       valid: true,
     };
     return res.status(HttpStatus.OK).json(response);

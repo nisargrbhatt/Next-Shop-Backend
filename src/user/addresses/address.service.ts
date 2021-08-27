@@ -31,9 +31,20 @@ export class AddressService {
     return await this.AddressRepository.findByPk<Address>(id);
   }
 
-  async findByUserId(userId: string): Promise<Address[]> {
-    return await this.AddressRepository.findAll<Address>({
+  async findByUserId(
+    userId: string,
+  ): Promise<{ count: number; rows: Address[] }> {
+    return await this.AddressRepository.findAndCountAll<Address>({
       where: {
+        userId,
+      },
+    });
+  }
+
+  async deleteAddress(id: string, userId: string): Promise<any> {
+    return await this.AddressRepository.destroy<Address>({
+      where: {
+        id,
         userId,
       },
     });

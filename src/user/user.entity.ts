@@ -1,14 +1,18 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { Cart } from 'src/cart/cart.entity';
+import { Product } from 'src/product/product.entity';
+import { Review } from 'src/review/review.entity';
+import { Address } from './addresses/address.entity';
 
 @Table({})
 export class User extends Model<User> {
   @Column({
-    type: DataType.INTEGER,
-    autoIncrement: true,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
     primaryKey: true,
     allowNull: false,
   })
-  id: number;
+  id: string;
 
   @Column({
     type: DataType.TEXT,
@@ -44,10 +48,15 @@ export class User extends Model<User> {
   })
   role: string;
 
-  @Column({
-    type: DataType.UUID,
-    defaultValue: DataType.UUIDV4,
-    allowNull: true,
-  })
-  uuid: string;
+  @HasMany(() => Address)
+  addresses: Address[];
+
+  @HasMany(() => Product)
+  products: Product[];
+
+  @HasMany(() => Cart)
+  cart: Cart[];
+
+  @HasMany(() => Review)
+  reviewes: Review[];
 }

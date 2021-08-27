@@ -1,7 +1,13 @@
+import { Address } from './../../user/addresses/address.entity';
 import { Sequelize } from 'sequelize-typescript';
 import { User } from 'src/user/user.entity';
 import { databaseConfig } from './database.config';
 import { DatabaseConfigAttributes } from './dbconfig.interface';
+import { Category } from 'src/product/category/category.entity';
+import { Product } from 'src/product/product.entity';
+import { Price } from 'src/price/price.entity';
+import { Cart } from 'src/cart/cart.entity';
+import { Review } from 'src/review/review.entity';
 
 export const databaseProvider = [
   {
@@ -24,7 +30,15 @@ export const databaseProvider = [
       }
 
       const sequelize = new Sequelize(config.urlDatabase, { logging: false });
-      sequelize.addModels([User]);
+      sequelize.addModels([
+        User,
+        Address,
+        Category,
+        Product,
+        Price,
+        Cart,
+        Review,
+      ]);
 
       await sequelize.sync();
       return sequelize;

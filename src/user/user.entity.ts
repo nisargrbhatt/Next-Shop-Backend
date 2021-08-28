@@ -59,4 +59,11 @@ export class User extends Model<User> {
 
   @HasMany(() => Review)
   reviewes: Review[];
+
+  toJSON() {
+    return {
+      ...this.get(),
+      password: undefined,
+    };
+  }
 }

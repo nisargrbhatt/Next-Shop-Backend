@@ -15,7 +15,7 @@ import { JwtStrategy } from './jwt.strategy';
     }),
     JwtModule.register({
       secret: process.env.JWTKEY ? process.env.JWTKEY : 'secret',
-      signOptions: { expiresIn: '1d' },
+      signOptions: { expiresIn: '10d' },
     }),
     ConfigModule,
   ],

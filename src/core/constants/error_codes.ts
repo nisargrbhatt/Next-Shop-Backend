@@ -10,3 +10,7 @@ export const NS_003 = {
   code: 'NS_003',
   message: 'Not authorized for this operation',
 };
+export const NS_004 = {
+  code: 'NS_004',
+  message: 'Invalid auth credentials',
+};

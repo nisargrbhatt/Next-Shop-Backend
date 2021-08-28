@@ -21,13 +21,13 @@ export class Review extends Model<Review> {
 
   @Column({
     type: DataType.TEXT,
-    allowNull: false,
+    allowNull: true,
   })
   message: string;
 
   @Column({
     type: DataType.INTEGER,
-    allowNull: true,
+    allowNull: false,
     validate: {
       isInt: true,
       min: 0,

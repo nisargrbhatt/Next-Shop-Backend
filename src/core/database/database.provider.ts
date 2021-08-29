@@ -28,8 +28,8 @@ export const databaseProvider = [
         default:
           config = databaseConfig.development;
       }
-
       const sequelize = new Sequelize(config.urlDatabase, { logging: false });
+
       sequelize.addModels([
         User,
         Address,

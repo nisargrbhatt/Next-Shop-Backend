@@ -16,6 +16,7 @@ export interface CreateUserData {
   expiresIn: number;
   role: string;
   access: string;
+  emailVerified: boolean;
 }
 
 export interface LoginData {
@@ -23,6 +24,7 @@ export interface LoginData {
   expiresIn: number;
   role: string;
   access: string;
+  emailVerified: boolean;
 }
 
 export class CreateUserResponse {
@@ -98,4 +100,44 @@ export class GetUserResponse {
     type: Object,
   })
   data?: User;
+}
+
+export class GetEmailOtpResponse {
+  @ApiResponseProperty({ type: String })
+  message: string;
+
+  @ApiResponseProperty({ type: Boolean, example: 'true/false' })
+  valid: boolean;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "code:'Error code',message:'Error message'",
+  })
+  error?: errorData;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "header:'Dialog header',message:'Dialog message'",
+  })
+  dialog?: dialogData;
+}
+
+export class EmailOtpCheckResponse {
+  @ApiResponseProperty({ type: String })
+  message: string;
+
+  @ApiResponseProperty({ type: Boolean, example: 'true/false' })
+  valid: boolean;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "code:'Error code',message:'Error message'",
+  })
+  error?: errorData;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "header:'Dialog header',message:'Dialog message'",
+  })
+  dialog?: dialogData;
 }

@@ -13,6 +13,14 @@ export class UserService {
     return await this.UserRepository.create<User>(createUserData);
   }
 
+  async update(updateUserData: any, id: string): Promise<any> {
+    return await this.UserRepository.update(updateUserData, {
+      where: {
+        id,
+      },
+    });
+  }
+
   async findAll(): Promise<User[]> {
     return await this.UserRepository.findAll<User>({});
   }

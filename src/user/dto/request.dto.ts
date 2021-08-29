@@ -80,3 +80,14 @@ export class LoginDto {
   @IsNotEmpty()
   role: string;
 }
+
+export class EmailOtpCheckDto {
+  @ApiProperty({
+    type: String,
+    name: 'otp',
+    description: 'Otp from email',
+    required: true,
+  })
+  @IsNotEmpty()
+  otp: string;
+}

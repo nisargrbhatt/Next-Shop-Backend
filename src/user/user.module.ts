@@ -6,11 +6,13 @@ import { UserProvider } from './user.provider';
 import { AuthModule } from 'src/auth/auth.module';
 import { AddressService } from './addresses/address.service';
 import { AddressController } from './addresses/address.controller';
+import { SharedService } from 'src/shared/shared.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, ConfigModule],
   controllers: [UserController, AddressController],
-  providers: [UserService, AddressService, ...UserProvider],
+  providers: [UserService, AddressService, SharedService, ...UserProvider],
   exports: [UserService, AddressService],
 })
 export class UserModule {}

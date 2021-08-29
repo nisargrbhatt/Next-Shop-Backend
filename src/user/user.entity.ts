@@ -48,6 +48,28 @@ export class User extends Model<User> {
   })
   role: string;
 
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+    comment: 'Email Otp',
+  })
+  email_otp: string;
+
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+    comment: 'Email Otp sent time',
+  })
+  email_otp_sent_time: string;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: true,
+    comment: 'Email Otp verified',
+    defaultValue: false,
+  })
+  email_verified: boolean;
+
   @HasMany(() => Address)
   addresses: Address[];
 
@@ -64,6 +86,7 @@ export class User extends Model<User> {
     return {
       ...this.get(),
       password: undefined,
+      email_otp: undefined,
     };
   }
 }

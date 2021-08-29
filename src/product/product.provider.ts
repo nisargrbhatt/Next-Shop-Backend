@@ -16,8 +16,4 @@ export const ProductProvider = [
     provide: CATEGORY_REPOSITORY,
     useValue: Category,
   },
-  {
-    provide: PRICE_REPOSITORY,
-    useValue: Price,
-  },
 ];

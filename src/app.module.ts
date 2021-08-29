@@ -1,3 +1,4 @@
+import { SharedModule } from './shared/shared.module';
 import { ReviewModule } from './review/review.module';
 import { CartModule } from './cart/cart.module';
 import { PriceModule } from './price/price.module';
@@ -11,9 +12,11 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './core/database/database.module';
 import { UserModule } from './user/user.module';
+import { SharedService } from './shared/shared.service';
 
 @Module({
   imports: [
+    SharedModule,
     ReviewModule,
     CartModule,
     PriceModule,
@@ -25,6 +28,6 @@ import { UserModule } from './user/user.module';
     MorganModule,
   ],
   controllers: [AppController],
-  providers: [AppService, ...AppProviders],
+  providers: [AppService, SharedService, ...AppProviders],
 })
 export class AppModule {}

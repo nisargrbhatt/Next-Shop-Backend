@@ -40,3 +40,8 @@ yarn-lock.yaml
 
 # Environment files
 .env
+
+# Configs
+firebase-storage.json
+client_secret.json
+next-shop.json

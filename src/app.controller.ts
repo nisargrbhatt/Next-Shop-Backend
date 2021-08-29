@@ -10,12 +10,13 @@ import {
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   FileFieldsInterceptor,
   FileInterceptor,
 } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiProperty } from '@nestjs/swagger';
-import { IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 import { Response, Express, Request } from 'express';
 import { AppService } from './app.service';
 import { SharedService } from './shared/shared.service';
@@ -24,6 +25,23 @@ class FileUploadDto {
   @ApiProperty({ type: 'file', name: 'file', isArray: true })
   @IsOptional()
   file: any[];
+}
+
+class EmailSendDto {
+  @ApiProperty({ type: String, name: 'email', required: true })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty({
+    type: String,
+    name: 'otp',
+    required: true,
+    maxLength: 4,
+    minLength: 4,
+  })
+  @IsNotEmpty()
+  otp: string;
 }
 
 @Controller()
@@ -70,5 +88,18 @@ export class AppController {
     }
 
     return res.status(HttpStatus.OK).json({ responseFiles });
+  }
+
+  @Post('testEmail')
+  @ApiBody({ type: EmailSendDto })
+  async testEmail(@Body() body: EmailSendDto, @Res() res: Response) {
+    let emailSent;
+    try {
+      emailSent = await this.sharedService.sendOtpMail(body.email, body.otp);
+    } catch (error) {
+      console.log(error);
+    }
+
+    return res.status(HttpStatus.OK).json(emailSent);
   }
 }

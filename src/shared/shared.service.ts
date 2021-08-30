@@ -17,6 +17,9 @@ export class SharedService {
     );
   }
 
+  /////////////////////////////////////////
+  //////////FIREBASESTORAGESERVICES///////
+
   async uploadImageFile(
     file: any,
     fileName: string,
@@ -62,6 +65,12 @@ export class SharedService {
     });
   }
 
+  /////////////////////////////////////////
+  /////////////////////////////////////////
+
+  /////////////////////////////////////////
+  ////////MAILSERVICES/////////////////////
+
   async sendOtpMail(email: string, otp: string): Promise<any> {
     const mailOptions = {
       from: '181200107002@asoit.edu.in',
@@ -80,6 +89,31 @@ export class SharedService {
     }
     return { mail: emailSent, error };
   }
+
+  async sendProductRejectMail(email: string, reason: string): Promise<any> {
+    const mailOptions = {
+      from: '181200107002@asoit.edu.in',
+      to: email,
+      subject: 'Product declined',
+      html: `
+      <h1>Your product request is declined by our admin</h1>
+      <p>Reason: ${reason}</p>
+      `,
+    };
+
+    let emailSent;
+    let error: boolean = false;
+    try {
+      emailSent = await this.Transport.sendMail(mailOptions);
+    } catch (error) {
+      console.error(error);
+      error = true;
+    }
+    return { mail: emailSent, error };
+  }
+
+  /////////////////////////////////////////
+  /////////////////////////////////////////
 
   generateOTP(): string {
     const digits = '0123456789';

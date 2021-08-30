@@ -5,6 +5,7 @@ import { Review } from 'src/review/review.entity';
 import { User } from 'src/user/user.entity';
 import { Category } from './category/category.entity';
 import { createProductData } from './dto/param.interface';
+import { Image } from './image/image.entity';
 import { Product } from './product.entity';
 
 @Injectable()
@@ -30,6 +31,13 @@ export class ProductService {
       },
     });
   }
+  async updateByAdmin(updateProductData: any, id: string): Promise<any> {
+    return await this.ProductRepository.update<Product>(updateProductData, {
+      where: {
+        id,
+      },
+    });
+  }
 
   async findByPk(id: string): Promise<Product> {
     return await this.ProductRepository.findByPk<Product>(id);
@@ -38,21 +46,26 @@ export class ProductService {
   async findProductWithCategory(id: string): Promise<Product> {
     return await this.ProductRepository.findOne<Product>({
       where: { id, productApproved: true },
-      include: [{ model: Category }],
+      include: [{ model: Category }, { model: Image }],
     });
   }
 
   async findProductWithCategoryPrice(id: string): Promise<Product> {
     return await this.ProductRepository.findOne<Product>({
       where: { id, productApproved: true },
-      include: [{ model: Category }, { model: Price }],
+      include: [{ model: Category }, { model: Price }, { model: Image }],
     });
   }
 
   async findProductWithCategoryPriceReview(id: string): Promise<Product> {
     return await this.ProductRepository.findOne<Product>({
       where: { id, productApproved: true },
-      include: [{ model: Category }, { model: Price }, { model: Review }],
+      include: [
+        { model: Category },
+        { model: Price },
+        { model: Review },
+        { model: Image },
+      ],
     });
   }
 
@@ -66,6 +79,7 @@ export class ProductService {
         { model: Price },
         { model: Review },
         { model: User },
+        { model: Image },
       ],
     });
   }
@@ -78,7 +92,7 @@ export class ProductService {
       where: {
         productApproved: false,
       },
-      include: [{ model: User }],
+      include: [{ model: User }, { model: Image }],
     });
   }
 

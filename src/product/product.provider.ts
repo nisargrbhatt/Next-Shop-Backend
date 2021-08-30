@@ -1,10 +1,10 @@
 import {
   CATEGORY_REPOSITORY,
-  PRICE_REPOSITORY,
+  IMAGE_REPOSITORY,
   PRODUCT_REPOSITORY,
 } from 'src/core/constants/constants';
-import { Price } from 'src/price/price.entity';
 import { Category } from './category/category.entity';
+import { Image } from './image/image.entity';
 import { Product } from './product.entity';
 
 export const ProductProvider = [
@@ -15,5 +15,9 @@ export const ProductProvider = [
   {
     provide: CATEGORY_REPOSITORY,
     useValue: Category,
+  },
+  {
+    provide: IMAGE_REPOSITORY,
+    useValue: Image,
   },
 ];

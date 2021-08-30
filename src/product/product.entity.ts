@@ -1,5 +1,3 @@
-import { STRING } from 'sequelize';
-
 import {
   Model,
   DataType,
@@ -14,6 +12,7 @@ import { Price } from 'src/price/price.entity';
 import { Review } from 'src/review/review.entity';
 import { User } from 'src/user/user.entity';
 import { Category } from './category/category.entity';
+import { Image } from './image/image.entity';
 
 @Table({})
 export class Product extends Model<Product> {
@@ -32,12 +31,6 @@ export class Product extends Model<Product> {
   name: string;
 
   @Column({
-    type: DataType.ARRAY(STRING),
-    allowNull: false,
-  })
-  photo: string[];
-
-  @Column({
     type: DataType.TEXT,
     allowNull: false,
   })
@@ -49,11 +42,19 @@ export class Product extends Model<Product> {
   })
   specification: string;
 
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: true,
+    defaultValue: false,
+    comment: 'Admin approval',
+  })
+  productApproved: boolean;
+
   @ForeignKey(() => Category)
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    comment: 'Category',
+    comment: 'Category Id',
   })
   categoryId: string;
 
@@ -61,7 +62,7 @@ export class Product extends Model<Product> {
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    comment: 'Ownership',
+    comment: 'Manufacturer Id',
   })
   userId: string;
 
@@ -79,4 +80,7 @@ export class Product extends Model<Product> {
 
   @HasMany(() => Review)
   reviewes: Review[];
+
+  @HasMany(() => Image)
+  images: Image[];
 }

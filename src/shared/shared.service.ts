@@ -17,7 +17,10 @@ export class SharedService {
     );
   }
 
-  async uploadImageFile(file: any, fileName: string) {
+  async uploadImageFile(
+    file: any,
+    fileName: string,
+  ): Promise<{ filePath: string; error: boolean; fileName: string }> {
     return new Promise(async (resolve, reject) => {
       let fileNameFinal = 'images/' + fileName;
       try {
@@ -26,7 +29,7 @@ export class SharedService {
 
         blobStream.on('error', (error) => {
           console.error(error);
-          return reject({ filePath: null, error: error });
+          return reject({ filePath: null, error: true, fileName });
         });
 
         blobStream.on('finish', async (data) => {
@@ -37,7 +40,7 @@ export class SharedService {
             await this.bucket.file(fileNameFinal).setMetadata(metaData);
           } catch (error) {
             console.error(error);
-            return reject({ filePath: null, error: error });
+            return reject({ filePath: null, error: true, fileName });
           }
 
           const publicUrl = `https://storage.googleapis.com/${this.bucket.name}/${blob.name}`;
@@ -46,15 +49,15 @@ export class SharedService {
             await this.bucket.file(fileNameFinal).makePublic();
           } catch (error) {
             console.error(error);
-            return reject({ filePath: null, error: error });
+            return reject({ filePath: null, error: true, fileName });
           }
-          resolve({ filePath: publicUrl, error: false });
+          resolve({ filePath: publicUrl, error: false, fileName });
         });
 
         blobStream.end(file);
       } catch (error) {
         console.error(error);
-        reject({ filePath: null, error: error });
+        reject({ filePath: null, error: true, fileName });
       }
     });
   }

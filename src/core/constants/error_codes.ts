@@ -30,3 +30,7 @@ export const NS_008 = {
   code: 'NS_008',
   message: 'Request timeout from the server',
 };
+export const NS_009 = {
+  code: 'NS_009',
+  message: 'Storage server has some error',
+};

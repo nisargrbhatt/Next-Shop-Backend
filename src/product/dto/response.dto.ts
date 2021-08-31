@@ -16,6 +16,16 @@ export interface GetApprovalRequiredProductData {
   rows: Product[];
 }
 
+export interface GetProductWithCategoryBySearchData {
+  count: number;
+  rows: Product[];
+}
+
+export interface GetProductWithCategoryByManufacturerIdData {
+  count: number;
+  rows: Product[];
+}
+
 export class CreateProductResponse {
   @ApiResponseProperty({ type: String })
   message: string;
@@ -124,4 +134,54 @@ export class GetProductResponse {
     type: Object,
   })
   data?: Product;
+}
+
+export class GetProductWithCategoryBySearchResponse {
+  @ApiResponseProperty({ type: String })
+  message: string;
+
+  @ApiResponseProperty({ type: Boolean, example: 'true/false' })
+  valid: boolean;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "code:'Error code',message:'Error message'",
+  })
+  error?: errorData;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "header:'Dialog header',message:'Dialog message'",
+  })
+  dialog?: dialogData;
+
+  @ApiResponseProperty({
+    type: Object,
+  })
+  data?: GetProductWithCategoryBySearchData;
+}
+
+export class GetProductWithCategoryByManufacturerIdResponse {
+  @ApiResponseProperty({ type: String })
+  message: string;
+
+  @ApiResponseProperty({ type: Boolean, example: 'true/false' })
+  valid: boolean;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "code:'Error code',message:'Error message'",
+  })
+  error?: errorData;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "header:'Dialog header',message:'Dialog message'",
+  })
+  dialog?: dialogData;
+
+  @ApiResponseProperty({
+    type: Object,
+  })
+  data?: GetProductWithCategoryByManufacturerIdData;
 }

@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { Op } from 'sequelize';
 import { PRODUCT_REPOSITORY } from 'src/core/constants/constants';
 import { Price } from 'src/price/price.entity';
 import { Review } from 'src/review/review.entity';
@@ -104,6 +105,39 @@ export class ProductService {
       cascade: true,
       truncate: true,
       logging: true,
+    });
+  }
+
+  async findProductsWithCategoryBySearch(
+    search: string,
+  ): Promise<{ count: number; rows: Product[] }> {
+    return await this.ProductRepository.findAndCountAll({
+      where: {
+        [Op.or]: [
+          {
+            name: {
+              [Op.iRegexp]: search,
+            },
+          },
+          {
+            description: {
+              [Op.iRegexp]: search,
+            },
+          },
+        ],
+      },
+      include: [{ model: Category }, { model: Image }],
+    });
+  }
+
+  async findProductsWithCategoryByManufacturerId(
+    userId: string,
+  ): Promise<{ count: number; rows: Product[] }> {
+    return await this.ProductRepository.findAndCountAll({
+      where: {
+        userId,
+      },
+      include: [{ model: Category }, { model: Image }],
     });
   }
 }

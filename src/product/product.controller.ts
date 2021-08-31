@@ -46,6 +46,10 @@ import {
   GetApprovalRequiredProductData,
   GetApprovalRequiredProductResponse,
   GetProductResponse,
+  GetProductWithCategoryByManufacturerIdData,
+  GetProductWithCategoryByManufacturerIdResponse,
+  GetProductWithCategoryBySearchData,
+  GetProductWithCategoryBySearchResponse,
   UpdateProductResponse,
 } from './dto/response.dto';
 import { createAndStoreImageData } from './image/dto/param.interface';
@@ -693,6 +697,94 @@ export class ProductController {
       message: 'Product fetched successfully',
       valid: true,
       data: fetchedProduct,
+    };
+    return res.status(HttpStatus.FOUND).json(response);
+  }
+
+  @Get('getProductWithCategoryBySearch')
+  @ApiQuery({
+    type: String,
+    name: 'search',
+    description: 'Search of the product',
+    required: true,
+  })
+  @ApiResponse({ type: GetProductWithCategoryBySearchResponse })
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiFoundResponse({ description: 'Products fetched successfully' })
+  async getProductWithCategoryBySearch(
+    @Query('search') search: string,
+    @Res() res: Response,
+  ) {
+    let response: GetProductWithCategoryBySearchResponse;
+
+    let fetchedProducts: GetProductWithCategoryBySearchData;
+    try {
+      fetchedProducts =
+        await this.productService.findProductsWithCategoryBySearch(search);
+    } catch (error) {
+      console.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Products fetched successfully',
+      valid: true,
+      data: fetchedProducts,
+    };
+    return res.status(HttpStatus.FOUND).json(response);
+  }
+
+  @Get('getProductWithCategoryByManufacturerId')
+  @ApiQuery({
+    type: String,
+    name: 'manufacturerId',
+    description: 'Manufacturter Id',
+    required: true,
+  })
+  @ApiResponse({
+    type: GetProductWithCategoryByManufacturerIdResponse,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiFoundResponse({ description: 'Products fetched successfully' })
+  async getProductWithCategoryByManufacturerId(
+    @Query('manufacturerId') manufacturerId: string,
+    @Res() res: Response,
+  ) {
+    let response: GetProductWithCategoryByManufacturerIdResponse;
+
+    let fetchedProducts: GetProductWithCategoryByManufacturerIdData;
+    try {
+      fetchedProducts =
+        await this.productService.findProductsWithCategoryByManufacturerId(
+          manufacturerId,
+        );
+    } catch (error) {
+      console.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Products fetched successfully',
+      valid: true,
+      data: fetchedProducts,
     };
     return res.status(HttpStatus.FOUND).json(response);
   }

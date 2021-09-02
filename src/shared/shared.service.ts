@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { Storage } from './firebase';
 import { Bucket } from '@google-cloud/storage';
@@ -7,6 +7,8 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SharedService {
+  private readonly logger = new Logger(SharedService.name);
+
   private bucket: Bucket;
   private Transport;
   constructor(private readonly configService: ConfigService) {
@@ -31,7 +33,7 @@ export class SharedService {
         const blobStream = blob.createWriteStream({ resumable: false });
 
         blobStream.on('error', (error) => {
-          console.error(error);
+          this.logger.error(error);
           return reject({ filePath: null, error: true, fileName });
         });
 
@@ -42,7 +44,7 @@ export class SharedService {
           try {
             await this.bucket.file(fileNameFinal).setMetadata(metaData);
           } catch (error) {
-            console.error(error);
+            this.logger.error(error);
             return reject({ filePath: null, error: true, fileName });
           }
 
@@ -51,7 +53,7 @@ export class SharedService {
           try {
             await this.bucket.file(fileNameFinal).makePublic();
           } catch (error) {
-            console.error(error);
+            this.logger.error(error);
             return reject({ filePath: null, error: true, fileName });
           }
           resolve({ filePath: publicUrl, error: false, fileName });
@@ -59,7 +61,7 @@ export class SharedService {
 
         blobStream.end(file);
       } catch (error) {
-        console.error(error);
+        this.logger.error(error);
         reject({ filePath: null, error: true, fileName });
       }
     });
@@ -84,7 +86,7 @@ export class SharedService {
     try {
       emailSent = await this.Transport.sendMail(mailOptions);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       error = true;
     }
     return { mail: emailSent, error };
@@ -106,7 +108,7 @@ export class SharedService {
     try {
       emailSent = await this.Transport.sendMail(mailOptions);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       error = true;
     }
     return { mail: emailSent, error };

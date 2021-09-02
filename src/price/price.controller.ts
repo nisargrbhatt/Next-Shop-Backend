@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Logger,
   Post,
   Put,
   Query,
@@ -42,6 +43,8 @@ import { PriceService } from './price.service';
 @Controller('price')
 @ApiTags('Price')
 export class PriceController {
+  private readonly logger = new Logger(PriceController.name);
+
   constructor(private readonly priceService: PriceService) {}
 
   @Post('addPrice')
@@ -70,7 +73,7 @@ export class PriceController {
     try {
       createdPrice = await this.priceService.create(createPriceData);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -130,7 +133,7 @@ export class PriceController {
         req.user.id,
       );
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -188,7 +191,7 @@ export class PriceController {
     try {
       fetchedPrice = await this.priceService.findByPk(priceId);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -240,7 +243,7 @@ export class PriceController {
     try {
       fetchedPrices = await this.priceService.findByMerchantId(req.user.id);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpStatus,
+  Logger,
   Post,
   Put,
   Query,
@@ -44,6 +45,7 @@ import {
 @Controller('address')
 @ApiTags('Address')
 export class AddressController {
+  private readonly logger = new Logger(AddressController.name);
   constructor(private readonly addressService: AddressService) {}
 
   @Post('createAddress')
@@ -70,7 +72,7 @@ export class AddressController {
     try {
       addressCreated = await this.addressService.create(createAddressData);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -127,7 +129,7 @@ export class AddressController {
         req.user.id,
       );
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -173,7 +175,7 @@ export class AddressController {
     try {
       addressData = await this.addressService.findByUserId(req.user.id);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -218,7 +220,7 @@ export class AddressController {
     try {
       addressData = await this.addressService.findByPk(addressId);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -267,7 +269,7 @@ export class AddressController {
         req.user.id,
       );
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,

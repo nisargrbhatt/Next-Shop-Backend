@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpStatus,
+  Logger,
   Post,
   Query,
   Req,
@@ -50,6 +51,8 @@ import { ImageService } from './image.service';
 @Controller('image')
 @ApiTags('Image')
 export class ImageController {
+  private readonly logger = new Logger(ImageController.name);
+
   constructor(
     private readonly imageService: ImageService,
     private sharedService: SharedService,
@@ -97,7 +100,7 @@ export class ImageController {
           `NS-${Date.now()}.jpg`,
         );
       } catch (error) {
-        console.error(error);
+        this.logger.error(error);
         response = {
           message: 'Something went wrong',
           valid: false,
@@ -136,7 +139,7 @@ export class ImageController {
       try {
         createdImage = await this.imageService.create(createImageData);
       } catch (error) {
-        console.error(error);
+        this.logger.error(error);
         response = {
           message: 'Something went wrong',
           valid: false,
@@ -194,7 +197,7 @@ export class ImageController {
     try {
       deletedImage = await this.imageService.delete(imageId);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -247,7 +250,7 @@ export class ImageController {
     try {
       fetchedImages = await this.imageService.findByProductId(productId);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,

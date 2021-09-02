@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Logger,
   Post,
   Req,
   Res,
@@ -58,6 +59,8 @@ import { ConfigService } from '@nestjs/config';
 @Controller('user')
 @ApiTags('User')
 export class UserController {
+  private readonly logger = new Logger(UserController.name);
+
   constructor(
     private readonly userService: UserService,
     private jwtService: JwtService,
@@ -86,7 +89,7 @@ export class UserController {
     try {
       createdUser = await this.userService.create(createUserData);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -147,7 +150,7 @@ export class UserController {
         body.role,
       );
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -188,7 +191,7 @@ export class UserController {
       return res.status(HttpStatus.BAD_REQUEST).json(response);
     }
 
-    console.log(`${logedUser.name} is logged In.`);
+    this.logger.log(`${logedUser.name} is logged In.`);
 
     let token = await this.jwtService.signAsync({ userId: logedUser.id });
 
@@ -282,7 +285,7 @@ export class UserController {
     try {
       updatedUser = await this.userService.update(updateUserData, req.user.id);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -315,7 +318,7 @@ export class UserController {
         generatedOtp,
       );
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -405,7 +408,7 @@ export class UserController {
     try {
       updatedUser = await this.userService.update(updateUserData, req.user.id);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,

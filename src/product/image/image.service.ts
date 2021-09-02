@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { IMAGE_REPOSITORY } from 'src/core/constants/constants';
 import { SharedService } from 'src/shared/shared.service';
 import {
@@ -9,6 +9,8 @@ import { Image } from './image.entity';
 
 @Injectable()
 export class ImageService {
+  private readonly logger = new Logger(ImageService.name);
+
   constructor(
     @Inject(IMAGE_REPOSITORY) private readonly ImageRepository: typeof Image,
     private readonly sharedService: SharedService,
@@ -59,7 +61,7 @@ export class ImageService {
           `NS-${Date.now()}.jpg`,
         );
       } catch (error) {
-        console.error(error);
+        this.logger.error(error);
         return reject(error);
       }
 
@@ -78,7 +80,7 @@ export class ImageService {
           createImageData,
         );
       } catch (error) {
-        console.error(error);
+        this.logger.error(error);
         return reject(error);
       }
       return resolve(createdImage);

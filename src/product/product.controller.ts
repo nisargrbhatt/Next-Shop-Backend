@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Logger,
   Patch,
   Post,
   Put,
@@ -61,6 +62,8 @@ import { ProductService } from './product.service';
 @Controller('product')
 @ApiTags('Product')
 export class ProductController {
+  private readonly logger = new Logger(ProductController.name);
+
   constructor(
     private readonly productService: ProductService,
     private readonly imageService: ImageService,
@@ -100,7 +103,7 @@ export class ProductController {
     try {
       createdProduct = await this.productService.create(createProductData);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -139,7 +142,7 @@ export class ProductController {
           createAndStoreImageData,
         );
       } catch (error) {
-        console.error(error);
+        this.logger.error(error);
         response = {
           message: 'Something went wrong',
           valid: false,
@@ -200,7 +203,7 @@ export class ProductController {
         req.user.id,
       );
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -273,7 +276,7 @@ export class ProductController {
           body.productId,
         );
       } catch (error) {
-        console.error(error);
+        this.logger.error(error);
         response = {
           message: 'Something went wrong',
           valid: false,
@@ -310,7 +313,7 @@ export class ProductController {
           body.declineReason,
         );
       } catch (error) {
-        console.error(error);
+        this.logger.error(error);
         response = {
           message: 'Something went wrong',
           valid: false,
@@ -342,7 +345,7 @@ export class ProductController {
           body.productId,
         );
       } catch (error) {
-        console.error(error);
+        this.logger.error(error);
         response = {
           message: 'Something went wrong',
           valid: false,
@@ -387,7 +390,7 @@ export class ProductController {
     try {
       fetchedProduct = await this.productService.findProductRequiredApproval();
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -431,7 +434,7 @@ export class ProductController {
     try {
       fetchedProduct = await this.productService.findByPk(productId);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -490,7 +493,7 @@ export class ProductController {
         productId,
       );
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -549,7 +552,7 @@ export class ProductController {
         productId,
       );
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -607,7 +610,7 @@ export class ProductController {
       fetchedProduct =
         await this.productService.findProductWithCategoryPriceReview(productId);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -667,7 +670,7 @@ export class ProductController {
           productId,
         );
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -722,7 +725,7 @@ export class ProductController {
       fetchedProducts =
         await this.productService.findProductsWithCategoryBySearch(search);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -768,7 +771,7 @@ export class ProductController {
           manufacturerId,
         );
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,

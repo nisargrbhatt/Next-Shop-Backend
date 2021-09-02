@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpStatus,
+  Logger,
   Patch,
   Post,
   Query,
@@ -42,6 +43,8 @@ import {
 @Controller('cart')
 @ApiTags('Cart')
 export class CartController {
+  private readonly logger = new Logger(CartController.name);
+
   constructor(private readonly cartService: CartService) {}
 
   @Post('addToCart')
@@ -70,7 +73,7 @@ export class CartController {
     try {
       createdCartItem = await this.cartService.create(createCartData);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -126,7 +129,7 @@ export class CartController {
         req.user.id,
       );
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -183,7 +186,7 @@ export class CartController {
     try {
       deletedItem = await this.cartService.deleteCartItem(cartId, req.user.id);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -228,7 +231,7 @@ export class CartController {
     try {
       cartData = await this.cartService.findByUserId(req.user.id);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,

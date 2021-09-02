@@ -3,18 +3,14 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Logger,
   Post,
-  Req,
   Res,
-  UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import {
-  FileFieldsInterceptor,
-  FileInterceptor,
-} from '@nestjs/platform-express';
+
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 import { Response, Express, Request } from 'express';
@@ -46,6 +42,8 @@ class EmailSendDto {
 
 @Controller()
 export class AppController {
+  private readonly logger = new Logger(AppController.name);
+
   constructor(
     private readonly appService: AppService,
     private readonly sharedService: SharedService,
@@ -53,6 +51,7 @@ export class AppController {
 
   @Get()
   getHello(): string {
+    this.logger.log('Hello');
     return this.appService.getHello();
   }
 
@@ -67,11 +66,11 @@ export class AppController {
   ) {
     let imageFiles = files['file'];
     let responseFiles = [];
-    console.log('Loop Started');
+    this.logger.log('Loop Started');
 
     for (let i = 0; i < imageFiles.length; i++) {
       let currentFile = imageFiles[i];
-      console.log(currentFile);
+      this.logger.log(currentFile);
 
       let uploadedFile;
       try {
@@ -79,9 +78,9 @@ export class AppController {
           currentFile.buffer,
           `NS-${Date.now()}.jpg`,
         );
-        console.log(uploadedFile);
+        this.logger.log(uploadedFile);
       } catch (error) {
-        console.log(error);
+        this.logger.log(error);
       }
 
       responseFiles.push(uploadedFile);
@@ -97,7 +96,7 @@ export class AppController {
     try {
       emailSent = await this.sharedService.sendOtpMail(body.email, body.otp);
     } catch (error) {
-      console.log(error);
+      this.logger.log(error);
     }
 
     return res.status(HttpStatus.OK).json(emailSent);

@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Logger,
   Post,
   Put,
   Query,
@@ -44,6 +45,8 @@ import {
 @Controller('category')
 @ApiTags('Category')
 export class CategoryController {
+  private readonly logger = new Logger(CategoryController.name);
+
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post('addCategory')
@@ -71,7 +74,7 @@ export class CategoryController {
     try {
       createdCategory = await this.categoryService.create(createCategoryData);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -130,7 +133,7 @@ export class CategoryController {
         body.categoryId,
       );
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -174,7 +177,7 @@ export class CategoryController {
     try {
       fetchedCategories = await this.categoryService.findAllCategory();
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -218,7 +221,7 @@ export class CategoryController {
     try {
       fetchedCategory = await this.categoryService.findByPk(categoryId);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -275,7 +278,7 @@ export class CategoryController {
     try {
       fetchedCategory = await this.categoryService.findByName(categoryName);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -332,7 +335,7 @@ export class CategoryController {
     try {
       fetchedCategory = await this.categoryService.findById(categoryId);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,

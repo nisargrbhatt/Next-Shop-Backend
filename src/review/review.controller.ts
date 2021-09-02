@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Logger,
   Post,
   Put,
   Query,
@@ -42,6 +43,7 @@ import { ReviewService } from './review.service';
 @Controller('review')
 @ApiTags('Review')
 export class ReviewController {
+  private readonly logger = new Logger(ReviewController.name);
   constructor(private readonly reviewService: ReviewService) {}
 
   @Post('addReview')
@@ -69,7 +71,7 @@ export class ReviewController {
     try {
       createdReview = await this.reviewService.create(createReviewData);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -129,7 +131,7 @@ export class ReviewController {
         req.user.id,
       );
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -188,7 +190,7 @@ export class ReviewController {
     try {
       fetchedReview = await this.reviewService.findByPk(reviewId);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,
@@ -241,7 +243,7 @@ export class ReviewController {
     try {
       fetchedReviews = await this.reviewService.findByProductId(productId);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       response = {
         message: 'Something went wrong',
         valid: false,

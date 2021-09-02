@@ -121,7 +121,9 @@ export class UserController {
       token: token,
       expiresIn: 60 * 60 * 24 * 10,
       role: createdUser.role,
-      access: this.configService.get(createdUser.role.toUpperCase()),
+      access: this.configService.get(
+        createdUser.role.toUpperCase() + '_ACCESS',
+      ),
       emailVerified: createdUser.email_verified,
     };
 
@@ -199,7 +201,7 @@ export class UserController {
       token: token,
       expiresIn: 60 * 60 * 24 * 10,
       role: logedUser.role,
-      access: this.configService.get(logedUser.role.toUpperCase()),
+      access: this.configService.get(logedUser.role.toUpperCase() + '_ACCESS'),
       emailVerified: logedUser.email_verified,
     };
 

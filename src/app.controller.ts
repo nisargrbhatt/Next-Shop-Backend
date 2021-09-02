@@ -70,7 +70,6 @@ export class AppController {
 
     for (let i = 0; i < imageFiles.length; i++) {
       let currentFile = imageFiles[i];
-      this.logger.log(currentFile);
 
       let uploadedFile;
       try {
@@ -78,7 +77,6 @@ export class AppController {
           currentFile.buffer,
           `NS-${Date.now()}.jpg`,
         );
-        this.logger.log(uploadedFile);
       } catch (error) {
         this.logger.log(error);
       }

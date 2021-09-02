@@ -1,6 +1,7 @@
 import * as admin from 'firebase-admin';
 
-const serviceAccount = require('../../next-shop.json');
+// const serviceAccount = require('../../next-shop.json');
+const serviceAccount = require('../../configs/next-shop');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),

@@ -42,7 +42,7 @@ export const databaseProvider = [
         Image,
       ]);
 
-      await sequelize.sync();
+      await sequelize.sync({ force: true });
       return sequelize;
     },
   },

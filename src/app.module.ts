@@ -3,7 +3,7 @@ import { ReviewModule } from './review/review.module';
 import { CartModule } from './cart/cart.module';
 import { PriceModule } from './price/price.module';
 import { ProductModule } from './product/product.module';
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MorganModule } from 'nest-morgan';
 import { AppController } from './app.controller';
@@ -26,6 +26,7 @@ import { SharedService } from './shared/shared.service';
     AuthModule,
     UserModule,
     MorganModule,
+    CacheModule.register(),
   ],
   controllers: [AppController],
   providers: [AppService, SharedService, ...AppProviders],

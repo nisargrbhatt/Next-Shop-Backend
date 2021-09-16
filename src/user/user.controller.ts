@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Logger,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -19,6 +20,7 @@ import {
   ApiFoundResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiRequestTimeoutResponse,
   ApiResponse,
   ApiTags,
@@ -441,5 +443,27 @@ export class UserController {
       valid: true,
     };
     return res.status(HttpStatus.ACCEPTED).json(response);
+  }
+
+  @Get('emailCheck')
+  @ApiQuery({ name: 'email', type: String, required: true })
+  async emailCheck(@Query('email') email: string, @Res() res: Response) {
+    let fetchedUser: User;
+    try {
+      fetchedUser = await this.userService.findOneByEmail(email);
+    } catch (error) {
+      return res.status(HttpStatus.OK).json({
+        ok: true,
+      });
+    }
+    if (fetchedUser) {
+      return res.status(HttpStatus.NOT_FOUND).json({
+        ok: false,
+      });
+    } else {
+      return res.status(HttpStatus.OK).json({
+        ok: true,
+      });
+    }
   }
 }

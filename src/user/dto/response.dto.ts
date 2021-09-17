@@ -17,6 +17,7 @@ export interface CreateUserData {
   role: string;
   access: string;
   emailVerified: boolean;
+  userId: string;
 }
 
 export interface LoginData {
@@ -25,6 +26,7 @@ export interface LoginData {
   role: string;
   access: string;
   emailVerified: boolean;
+  userId: string;
 }
 
 export class CreateUserResponse {

@@ -127,6 +127,7 @@ export class UserController {
         createdUser.role.toUpperCase() + '_ACCESS',
       ),
       emailVerified: createdUser.email_verified,
+      userId: createdUser.id,
     };
 
     response = {
@@ -205,6 +206,7 @@ export class UserController {
       role: logedUser.role,
       access: this.configService.get(logedUser.role.toUpperCase() + '_ACCESS'),
       emailVerified: logedUser.email_verified,
+      userId: logedUser.id,
     };
 
     response = {

@@ -211,7 +211,7 @@ export class UserController {
 
     response = {
       message: 'User logged in successfully',
-      valid: false,
+      valid: true,
       data: responseData,
     };
 

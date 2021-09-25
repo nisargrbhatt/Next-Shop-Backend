@@ -181,7 +181,9 @@ export class UserController {
       return res.status(HttpStatus.BAD_REQUEST).json(response);
     }
 
-    let passwordCompare = compare(body.password, logedUser.password);
+    let passwordCompare = await compare(body.password, logedUser.password);
+
+    console.log(passwordCompare);
 
     if (!passwordCompare) {
       response = {

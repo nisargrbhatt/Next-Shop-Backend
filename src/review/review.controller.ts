@@ -25,7 +25,7 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { Response } from 'express';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 import { NS_001, NS_002, NS_003 } from 'src/core/constants/error_codes';
 import { User } from 'src/user/user.entity';
 import { createReviewData } from './dto/param.interface';
@@ -47,7 +47,7 @@ export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   @Post('addReview')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiBody({ type: AddReviewDto })
   @ApiResponse({ type: AddReviewResponse })
@@ -105,7 +105,7 @@ export class ReviewController {
   }
 
   @Put('updateReview')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiBody({ type: UpdateReviewDto })
   @ApiResponse({ type: UpdateReviewResponse })
@@ -165,7 +165,7 @@ export class ReviewController {
   }
 
   @Get('getReview')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiQuery({
     name: 'reviewId',

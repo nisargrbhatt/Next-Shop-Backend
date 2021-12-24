@@ -25,13 +25,14 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { Response } from 'express';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+
 import { NS_001, NS_002, NS_003 } from 'src/core/constants/error_codes';
 import { User } from 'src/user/user.entity';
 import { Category } from './category.entity';
 import { CategoryService } from './category.service';
 import { createCategoryData } from './dto/param.interface';
 import { AddCategoryDto, UpdateCategoryDto } from './dto/request.dto';
+import { AuthGuard } from '@nestjs/passport';
 import {
   AddCategoryResponse,
   GetAllCategoriesData,
@@ -50,7 +51,7 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post('addCategory')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiBody({ type: AddCategoryDto })
   @ApiResponse({ type: AddCategoryResponse })
@@ -108,7 +109,7 @@ export class CategoryController {
   }
 
   @Put('updateCategory')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiBody({ type: UpdateCategoryDto })
   @ApiResponse({ type: UpdateCategoryResponse })

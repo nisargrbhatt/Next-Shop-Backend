@@ -59,7 +59,7 @@ export class ImageController {
   ) {}
 
   @Post('addImage')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
@@ -174,7 +174,7 @@ export class ImageController {
   }
 
   @Delete('deleteImage')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiQuery({
     type: String,

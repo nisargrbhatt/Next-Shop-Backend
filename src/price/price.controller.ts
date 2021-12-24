@@ -25,7 +25,7 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { Response } from 'express';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+
 import { NS_001, NS_002, NS_003 } from 'src/core/constants/error_codes';
 import { User } from 'src/user/user.entity';
 import { createPriceData } from './dto/param.interface';
@@ -39,6 +39,7 @@ import {
 } from './dto/response.dto';
 import { Price } from './price.entity';
 import { PriceService } from './price.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('price')
 @ApiTags('Price')
@@ -48,7 +49,7 @@ export class PriceController {
   constructor(private readonly priceService: PriceService) {}
 
   @Post('addPrice')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiBody({ type: AddPriceDto })
   @ApiResponse({ type: AddPriceResponse })
@@ -107,7 +108,7 @@ export class PriceController {
   }
 
   @Put('updatePrice')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiBody({ type: UpdatePriceDto })
   @ApiResponse({ type: UpdatePriceResponse })
@@ -166,7 +167,7 @@ export class PriceController {
   }
 
   @Get('getPrice')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiQuery({
     type: String,
@@ -226,7 +227,7 @@ export class PriceController {
   }
 
   @Get('getPricesByMerchantId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiResponse({
     type: GetPricesByMerchantIdResponse,

@@ -49,7 +49,7 @@ export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 
   @Post('createAddress')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiBody({ type: CreateAddressDto })
   @ApiUnprocessableEntityResponse({
@@ -106,7 +106,7 @@ export class AddressController {
   }
 
   @Put('updateAddress')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiBody({ type: UpdateAddressDto })
   @ApiResponse({ type: UpdateAddressResponse })
@@ -161,7 +161,7 @@ export class AddressController {
   }
 
   @Get('getAddresses')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiResponse({
     type: GetAddressesResponse,
@@ -198,7 +198,7 @@ export class AddressController {
   }
 
   @Get('getAddress')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiResponse({ type: GetAddressResponse })
   @ApiQuery({
@@ -243,7 +243,7 @@ export class AddressController {
   }
 
   @Delete('deleteAddress')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiResponse({ type: DeleteAddressResponse })
   @ApiQuery({

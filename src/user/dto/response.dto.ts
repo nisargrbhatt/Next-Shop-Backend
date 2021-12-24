@@ -19,6 +19,12 @@ export interface CreateUserData {
   emailVerified: boolean;
   userId: string;
 }
+export interface OAuthCallData {
+  role: string;
+  access: string;
+  emailVerified: boolean;
+  userId: string;
+}
 
 export interface LoginData {
   token: string;
@@ -142,4 +148,29 @@ export class EmailOtpCheckResponse {
     example: "header:'Dialog header',message:'Dialog message'",
   })
   dialog?: dialogData;
+}
+
+export class OAuthCallResponse {
+  @ApiResponseProperty({ type: String })
+  message: string;
+
+  @ApiResponseProperty({ type: Boolean, example: 'true/false' })
+  valid: boolean;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "code:'Error code',message:'Error message'",
+  })
+  error?: errorData;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "header:'Dialog header',message:'Dialog message'",
+  })
+  dialog?: dialogData;
+
+  @ApiResponseProperty({
+    type: Object,
+  })
+  data?: OAuthCallData;
 }

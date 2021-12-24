@@ -71,7 +71,7 @@ export class ProductController {
   ) {}
 
   @Post('createProduct')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateProductDto })
@@ -176,7 +176,7 @@ export class ProductController {
   }
 
   @Put('updateProduct')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiBody({ type: UpdateProductDto })
   @ApiResponse({ type: UpdateProductResponse })
@@ -237,7 +237,7 @@ export class ProductController {
   }
 
   @Patch('approveProduct')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiBody({ type: ApproveProductDto })
   @ApiResponse({ type: ApproveProductResponse })

@@ -48,7 +48,7 @@ export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Post('addToCart')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiBody({ type: AddToCartDto })
   @ApiUnprocessableEntityResponse({
@@ -107,7 +107,7 @@ export class CartController {
   }
 
   @Patch('updateQuantityCart')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiBody({ type: UpdateQuantityCartDto })
   @ApiResponse({ type: UpdateQuantityCartResponse })
@@ -163,7 +163,7 @@ export class CartController {
   }
 
   @Delete('deleteTheItem')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
   @ApiUnauthorizedResponse({ description: 'Not authorized for this operation' })
@@ -219,7 +219,7 @@ export class CartController {
   }
 
   @Get('getCart')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiResponse({ type: GetCartResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })

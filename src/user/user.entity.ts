@@ -31,12 +31,6 @@ export class User extends Model<User> {
 
   @Column({
     type: DataType.TEXT,
-    allowNull: false,
-  })
-  password: string;
-
-  @Column({
-    type: DataType.TEXT,
     allowNull: true,
   })
   contact_no: string;

@@ -31,8 +31,13 @@ import {
 
 import { JwtService } from '@nestjs/jwt';
 import { compare, hash } from 'bcrypt';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { CreateUserDto, EmailOtpCheckDto, LoginDto } from './dto/request.dto';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  CreateUserDto,
+  EmailOtpCheckDto,
+  LoginDto,
+  OAuthCallDto,
+} from './dto/request.dto';
 import { Response } from 'express';
 import {
   CreateUserData,
@@ -42,8 +47,10 @@ import {
   GetUserResponse,
   LoginData,
   LoginResponse,
+  OAuthCallData,
+  OAuthCallResponse,
 } from './dto/response.dto';
-import { createUserData } from './dto/param.interface';
+import { createUserData, oAuthCallData } from './dto/param.interface';
 import { User } from './user.entity';
 import {
   NS_001,
@@ -57,6 +64,7 @@ import {
 } from 'src/core/constants/error_codes';
 import { SharedService } from 'src/shared/shared.service';
 import { ConfigService } from '@nestjs/config';
+import { type } from 'os';
 
 @Controller('user')
 @ApiTags('User')
@@ -70,158 +78,158 @@ export class UserController {
     private readonly configService: ConfigService,
   ) {}
 
-  @Post('createUser')
-  @ApiBody({ type: CreateUserDto })
-  @ApiResponse({ type: CreateUserResponse })
-  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiUnprocessableEntityResponse({
-    description: 'User Data is not processable',
-  })
-  @ApiCreatedResponse({ description: 'User created successfully' })
-  async createUser(@Body() body: CreateUserDto, @Res() res: Response) {
-    let response: CreateUserResponse;
+  // @Post('createUser')
+  // @ApiBody({ type: CreateUserDto })
+  // @ApiResponse({ type: CreateUserResponse })
+  // @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  // @ApiUnprocessableEntityResponse({
+  //   description: 'User Data is not processable',
+  // })
+  // @ApiCreatedResponse({ description: 'User created successfully' })
+  // async createUser(@Body() body: CreateUserDto, @Res() res: Response) {
+  //   let response: CreateUserResponse;
 
-    let hashPassword = await hash(body.password, 10);
+  //   let hashPassword = await hash(body.password, 10);
 
-    let createUserData: createUserData = {
-      ...body,
-      password: hashPassword,
-    };
-    let createdUser: User;
-    try {
-      createdUser = await this.userService.create(createUserData);
-    } catch (error) {
-      this.logger.error(error);
-      response = {
-        message: 'Something went wrong',
-        valid: false,
-        error: NS_002,
-        dialog: {
-          header: 'Server error',
-          message: 'There is some error in server. Please try again later',
-        },
-      };
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
-    }
+  //   let createUserData: createUserData = {
+  //     ...body,
+  //     password: hashPassword,
+  //   };
+  //   let createdUser: User;
+  //   try {
+  //     createdUser = await this.userService.create(createUserData);
+  //   } catch (error) {
+  //     this.logger.error(error);
+  //     response = {
+  //       message: 'Something went wrong',
+  //       valid: false,
+  //       error: NS_002,
+  //       dialog: {
+  //         header: 'Server error',
+  //         message: 'There is some error in server. Please try again later',
+  //       },
+  //     };
+  //     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+  //   }
 
-    if (!createdUser) {
-      response = {
-        message: 'User Data is not processable',
-        valid: false,
-        error: NS_001,
-        dialog: {
-          header: 'Wrong input',
-          message: 'User input is not processable',
-        },
-      };
-      return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(response);
-    }
+  //   if (!createdUser) {
+  //     response = {
+  //       message: 'User Data is not processable',
+  //       valid: false,
+  //       error: NS_001,
+  //       dialog: {
+  //         header: 'Wrong input',
+  //         message: 'User input is not processable',
+  //       },
+  //     };
+  //     return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(response);
+  //   }
 
-    let token = await this.jwtService.signAsync({ userId: createdUser.id });
+  //   let token = await this.jwtService.signAsync({ userId: createdUser.id });
 
-    let responseData: CreateUserData = {
-      token: token,
-      expiresIn: 60 * 60 * 24 * 10,
-      role: createdUser.role,
-      access: this.configService.get(
-        createdUser.role.toUpperCase() + '_ACCESS',
-      ),
-      emailVerified: createdUser.email_verified,
-      userId: createdUser.id,
-    };
+  //   let responseData: CreateUserData = {
+  //     token: token,
+  //     expiresIn: 60 * 60 * 24 * 10,
+  //     role: createdUser.role,
+  //     access: this.configService.get(
+  //       createdUser.role.toUpperCase() + '_ACCESS',
+  //     ),
+  //     emailVerified: createdUser.email_verified,
+  //     userId: createdUser.id,
+  //   };
 
-    response = {
-      message: 'User created successfully',
-      valid: true,
-      data: responseData,
-    };
+  //   response = {
+  //     message: 'User created successfully',
+  //     valid: true,
+  //     data: responseData,
+  //   };
 
-    return res.status(HttpStatus.CREATED).json(response);
-  }
+  //   return res.status(HttpStatus.CREATED).json(response);
+  // }
 
-  @Post('login')
-  @ApiBody({ type: LoginDto })
-  @ApiResponse({ type: LoginResponse })
-  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiBadRequestResponse({ description: 'Invalid auth credentials' })
-  @ApiOkResponse({ description: 'User logged in successfully' })
-  async login(@Body() body: LoginDto, @Res() res: Response) {
-    let response: LoginResponse;
+  // @Post('login')
+  // @ApiBody({ type: LoginDto })
+  // @ApiResponse({ type: LoginResponse })
+  // @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  // @ApiBadRequestResponse({ description: 'Invalid auth credentials' })
+  // @ApiOkResponse({ description: 'User logged in successfully' })
+  // async login(@Body() body: LoginDto, @Res() res: Response) {
+  //   let response: LoginResponse;
 
-    let logedUser: User;
-    try {
-      logedUser = await this.userService.findOneByEmailRole(
-        body.email,
-        body.role,
-      );
-    } catch (error) {
-      this.logger.error(error);
-      response = {
-        message: 'Something went wrong',
-        valid: false,
-        error: NS_002,
-        dialog: {
-          header: 'Server error',
-          message: 'There is some error in server. Please try again later',
-        },
-      };
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
-    }
+  //   let logedUser: User;
+  //   try {
+  //     logedUser = await this.userService.findOneByEmailRole(
+  //       body.email,
+  //       body.role,
+  //     );
+  //   } catch (error) {
+  //     this.logger.error(error);
+  //     response = {
+  //       message: 'Something went wrong',
+  //       valid: false,
+  //       error: NS_002,
+  //       dialog: {
+  //         header: 'Server error',
+  //         message: 'There is some error in server. Please try again later',
+  //       },
+  //     };
+  //     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+  //   }
 
-    if (!logedUser) {
-      response = {
-        message: 'Invalid auth credentials',
-        valid: false,
-        error: NS_004,
-        dialog: {
-          header: 'Invalid Auth',
-          message: 'Email/Password/Role is wrong',
-        },
-      };
-      return res.status(HttpStatus.BAD_REQUEST).json(response);
-    }
+  //   if (!logedUser) {
+  //     response = {
+  //       message: 'Invalid auth credentials',
+  //       valid: false,
+  //       error: NS_004,
+  //       dialog: {
+  //         header: 'Invalid Auth',
+  //         message: 'Email/Password/Role is wrong',
+  //       },
+  //     };
+  //     return res.status(HttpStatus.BAD_REQUEST).json(response);
+  //   }
 
-    let passwordCompare = await compare(body.password, logedUser.password);
+  //   let passwordCompare = await compare(body.password, logedUser.password);
 
-    console.log(passwordCompare);
+  //   console.log(passwordCompare);
 
-    if (!passwordCompare) {
-      response = {
-        message: 'Invalid auth credentials',
-        valid: false,
-        error: NS_004,
-        dialog: {
-          header: 'Invalid Auth',
-          message: 'Email/Password/Role is wrong',
-        },
-      };
-      return res.status(HttpStatus.BAD_REQUEST).json(response);
-    }
+  //   if (!passwordCompare) {
+  //     response = {
+  //       message: 'Invalid auth credentials',
+  //       valid: false,
+  //       error: NS_004,
+  //       dialog: {
+  //         header: 'Invalid Auth',
+  //         message: 'Email/Password/Role is wrong',
+  //       },
+  //     };
+  //     return res.status(HttpStatus.BAD_REQUEST).json(response);
+  //   }
 
-    this.logger.log(`${logedUser.name} is logged In.`);
+  //   this.logger.log(`${logedUser.name} is logged In.`);
 
-    let token = await this.jwtService.signAsync({ userId: logedUser.id });
+  //   let token = await this.jwtService.signAsync({ userId: logedUser.id });
 
-    let responseData: LoginData = {
-      token: token,
-      expiresIn: 60 * 60 * 24 * 10,
-      role: logedUser.role,
-      access: this.configService.get(logedUser.role.toUpperCase() + '_ACCESS'),
-      emailVerified: logedUser.email_verified,
-      userId: logedUser.id,
-    };
+  //   let responseData: LoginData = {
+  //     token: token,
+  //     expiresIn: 60 * 60 * 24 * 10,
+  //     role: logedUser.role,
+  //     access: this.configService.get(logedUser.role.toUpperCase() + '_ACCESS'),
+  //     emailVerified: logedUser.email_verified,
+  //     userId: logedUser.id,
+  //   };
 
-    response = {
-      message: 'User logged in successfully',
-      valid: true,
-      data: responseData,
-    };
+  //   response = {
+  //     message: 'User logged in successfully',
+  //     valid: true,
+  //     data: responseData,
+  //   };
 
-    return res.status(HttpStatus.OK).json(response);
-  }
+  //   return res.status(HttpStatus.OK).json(response);
+  // }
 
   @Get('getUser')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiResponse({ type: GetUserResponse })
   @ApiFoundResponse({ description: 'User fetched successfully' })
@@ -237,7 +245,7 @@ export class UserController {
   }
 
   @Get('getEmailOtp')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiResponse({ type: GetEmailOtpResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
@@ -360,7 +368,7 @@ export class UserController {
   }
 
   @Post('emailOtpCheck')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiBody({ type: EmailOtpCheckDto })
   @ApiResponse({ type: EmailOtpCheckResponse })
@@ -469,5 +477,95 @@ export class UserController {
         ok: true,
       });
     }
+  }
+
+  @Post('oAuthCall')
+  @ApiBody({ type: OAuthCallDto })
+  @ApiResponse({ type: OAuthCallResponse })
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiCreatedResponse({ description: 'User Signed up successfully' })
+  @ApiOkResponse({ description: 'Otp is wrong' })
+  async oAuthCall(@Body() body: OAuthCallDto, @Res() res: Response) {
+    let response: OAuthCallResponse;
+
+    let user: User;
+    try {
+      user = await this.userService.findOneByEmailRole(
+        body['sub'],
+        body['role'],
+      );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    if (!user) {
+      let createUserData: oAuthCallData = {
+        ...body,
+        id: body['sub'],
+      };
+
+      let createdUser: User;
+      try {
+        createdUser = await this.userService.create(createUserData);
+      } catch (error) {
+        this.logger.error(error);
+        response = {
+          message: 'Something went wrong',
+          valid: false,
+          error: NS_002,
+          dialog: {
+            header: 'Server error',
+            message: 'There is some error in server. Please try again later',
+          },
+        };
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+      }
+
+      this.logger.log(`${createdUser.name} is Signed Up.`);
+
+      let responseData: OAuthCallData = {
+        role: createdUser.role,
+        access: this.configService.get(
+          createdUser.role.toUpperCase() + '_ACCESS',
+        ),
+        emailVerified: createdUser.email_verified,
+        userId: createdUser.id,
+      };
+
+      response = {
+        message: 'User Signed up successfully',
+        valid: true,
+        data: responseData,
+      };
+
+      return res.status(HttpStatus.CREATED).json(response);
+    }
+
+    this.logger.log(`${user.name} is Logged In.`);
+
+    let responseData: OAuthCallData = {
+      role: user.role,
+      access: this.configService.get(user.role.toUpperCase() + '_ACCESS'),
+      emailVerified: user.email_verified,
+      userId: user.id,
+    };
+
+    response = {
+      message: 'User Logged in successfully',
+      valid: true,
+      data: responseData,
+    };
+
+    return res.status(HttpStatus.OK).json(response);
   }
 }

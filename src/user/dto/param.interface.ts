@@ -5,3 +5,11 @@ export interface createUserData {
   contact_no: string;
   role: string;
 }
+
+export interface oAuthCallData {
+  id: string;
+  email: string;
+  role: string;
+  name: string;
+  email_verified: boolean;
+}

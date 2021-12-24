@@ -64,7 +64,6 @@ import {
 } from 'src/core/constants/error_codes';
 import { SharedService } from 'src/shared/shared.service';
 import { ConfigService } from '@nestjs/config';
-import { type } from 'os';
 
 @Controller('user')
 @ApiTags('User')
@@ -73,7 +72,6 @@ export class UserController {
 
   constructor(
     private readonly userService: UserService,
-    private jwtService: JwtService,
     private readonly sharedService: SharedService,
     private readonly configService: ConfigService,
   ) {}
@@ -484,7 +482,7 @@ export class UserController {
   @ApiResponse({ type: OAuthCallResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
   @ApiCreatedResponse({ description: 'User Signed up successfully' })
-  @ApiOkResponse({ description: 'Otp is wrong' })
+  @ApiOkResponse({ description: 'User Logged in successfully' })
   async oAuthCall(@Body() body: OAuthCallDto, @Res() res: Response) {
     let response: OAuthCallResponse;
 

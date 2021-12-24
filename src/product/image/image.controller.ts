@@ -33,7 +33,7 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { Response, Express } from 'express';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 import { NS_001, NS_002, NS_003, NS_009 } from 'src/core/constants/error_codes';
 import { SharedService } from 'src/shared/shared.service';
 import { User } from 'src/user/user.entity';

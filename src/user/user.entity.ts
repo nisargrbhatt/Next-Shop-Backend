@@ -7,8 +7,7 @@ import { Address } from './addresses/address.entity';
 @Table({})
 export class User extends Model<User> {
   @Column({
-    type: DataType.UUID,
-    defaultValue: DataType.UUIDV4,
+    type: DataType.TEXT,
     primaryKey: true,
     allowNull: false,
   })

@@ -49,7 +49,7 @@ export class Cart extends Model<Cart> {
 
   @ForeignKey(() => User)
   @Column({
-    type: DataType.UUID,
+    type: DataType.TEXT,
     allowNull: false,
     comment: 'Customer Id',
   })

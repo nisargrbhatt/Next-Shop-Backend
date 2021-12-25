@@ -31,7 +31,25 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<User> {
-    const user: User = await this.userService.findOneByPk(payload['sub']);
+    let role: string;
+    switch (payload['azp']) {
+      case this.configService.get('CUSTOMER_AUTH0_CLIENTID'):
+        role = 'Customer';
+        break;
+      case this.configService.get('ADMIN_AUTH0_CLIENTID'):
+        role = 'Admin';
+        break;
+      case this.configService.get('MERCHANT_AUTH0_CLIENTID'):
+        role = 'Merchant';
+        break;
+      case this.configService.get('MANUFACTURER_AUTH0_CLIENTID'):
+        role = 'Manufacturer';
+        break;
+    }
+
+    const user: User = await this.userService.findOneByPk(
+      payload['sub'] + '|' + role,
+    );
 
     if (!user) {
       throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);

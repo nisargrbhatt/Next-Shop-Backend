@@ -40,7 +40,7 @@ export class Price extends Model<Price> {
 
   @ForeignKey(() => User)
   @Column({
-    type: DataType.UUID,
+    type: DataType.TEXT,
     allowNull: false,
     comment: 'Merchant Id',
   })

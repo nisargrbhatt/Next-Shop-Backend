@@ -60,7 +60,7 @@ export class Product extends Model<Product> {
 
   @ForeignKey(() => User)
   @Column({
-    type: DataType.UUID,
+    type: DataType.TEXT,
     allowNull: false,
     comment: 'Manufacturer Id',
   })

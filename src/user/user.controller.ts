@@ -488,9 +488,8 @@ export class UserController {
 
     let user: User;
     try {
-      user = await this.userService.findOneByEmailRole(
-        body['sub'],
-        body['role'],
+      user = await this.userService.findOneByPk(
+        body['sub'] + '|' + body['role'],
       );
     } catch (error) {
       this.logger.error(error);
@@ -509,7 +508,7 @@ export class UserController {
     if (!user) {
       let createUserData: oAuthCallData = {
         ...body,
-        id: body['sub'],
+        id: body['sub'] + '|' + body['role'],
       };
 
       let createdUser: User;

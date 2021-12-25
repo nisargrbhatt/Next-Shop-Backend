@@ -62,7 +62,7 @@ export class Address extends Model<Address> {
 
   @ForeignKey(() => User)
   @Column({
-    type: DataType.UUID,
+    type: DataType.TEXT,
     allowNull: true,
   })
   userId: string;

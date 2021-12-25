@@ -38,7 +38,7 @@ export class Review extends Model<Review> {
 
   @ForeignKey(() => User)
   @Column({
-    type: DataType.UUID,
+    type: DataType.TEXT,
     allowNull: false,
     comment: 'Customer id',
   })

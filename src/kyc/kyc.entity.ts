@@ -54,6 +54,21 @@ export class KYC extends Model<KYC> {
   })
   email: string;
 
+  @Column({
+    type: DataType.BOOLEAN,
+    comment: 'KYC Approval Status',
+    allowNull: false,
+    defaultValue: false,
+  })
+  kyc_approval: boolean;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    comment: 'Admin Decision',
+    allowNull: true,
+  })
+  admin_decision: boolean;
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.TEXT,

@@ -1,6 +1,5 @@
 import { Controller, Logger } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { UserService } from 'src/user/user.service';
 import { KycService } from './kyc.service';
 
 @Controller('kyc')
@@ -8,8 +7,5 @@ import { KycService } from './kyc.service';
 export class KycController {
   private readonly logger = new Logger(KycController.name);
 
-  constructor(
-    private readonly kycService: KycService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly kycService: KycService) {}
 }

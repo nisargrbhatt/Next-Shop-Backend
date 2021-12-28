@@ -537,6 +537,7 @@ export class UserController {
         ),
         emailVerified: createdUser.email_verified,
         userId: createdUser.id,
+        merchantVerified: user.merchant_or_manufacturer_verified,
       };
 
       response = {
@@ -555,6 +556,7 @@ export class UserController {
       access: this.configService.get(user.role.toUpperCase() + '_ACCESS'),
       emailVerified: user.email_verified,
       userId: user.id,
+      merchantVerified: user.merchant_or_manufacturer_verified,
     };
 
     response = {

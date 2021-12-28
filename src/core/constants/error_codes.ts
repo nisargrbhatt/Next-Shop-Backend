@@ -34,3 +34,7 @@ export const NS_009 = {
   code: 'NS_009',
   message: 'Storage server has some error',
 };
+export const NS_010 = {
+  code: 'NS_010',
+  message: 'User is not verified',
+};

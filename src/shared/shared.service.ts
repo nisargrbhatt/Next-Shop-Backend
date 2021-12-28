@@ -67,6 +67,51 @@ export class SharedService {
     });
   }
 
+  async uploadKYCImageFile(
+    file: any,
+    fileName: string,
+  ): Promise<{ filePath: string; error: boolean; fileName: string }> {
+    return new Promise(async (resolve, reject) => {
+      let fileNameFinal = 'KYCimages/' + fileName;
+      try {
+        const blob = this.bucket.file(fileNameFinal);
+        const blobStream = blob.createWriteStream({ resumable: false });
+
+        blobStream.on('error', (error) => {
+          this.logger.error(error);
+          return reject({ filePath: null, error: true, fileName });
+        });
+
+        blobStream.on('finish', async (data) => {
+          const metaData = {
+            contentType: 'image/jpg',
+          };
+          try {
+            await this.bucket.file(fileNameFinal).setMetadata(metaData);
+          } catch (error) {
+            this.logger.error(error);
+            return reject({ filePath: null, error: true, fileName });
+          }
+
+          const publicUrl = `https://storage.googleapis.com/${this.bucket.name}/${blob.name}`;
+
+          try {
+            await this.bucket.file(fileNameFinal).makePublic();
+          } catch (error) {
+            this.logger.error(error);
+            return reject({ filePath: null, error: true, fileName });
+          }
+          resolve({ filePath: publicUrl, error: false, fileName });
+        });
+
+        blobStream.end(file);
+      } catch (error) {
+        this.logger.error(error);
+        reject({ filePath: null, error: true, fileName });
+      }
+    });
+  }
+
   /////////////////////////////////////////
   /////////////////////////////////////////
 

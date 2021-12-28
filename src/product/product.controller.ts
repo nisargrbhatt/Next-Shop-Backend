@@ -32,7 +32,13 @@ import {
 } from '@nestjs/swagger';
 import { Response, Express } from 'express';
 import { AuthGuard } from '@nestjs/passport';
-import { NS_001, NS_002, NS_003, NS_006 } from 'src/core/constants/error_codes';
+import {
+  NS_001,
+  NS_002,
+  NS_003,
+  NS_006,
+  NS_010,
+} from 'src/core/constants/error_codes';
 import { SharedService } from 'src/shared/shared.service';
 import { User } from 'src/user/user.entity';
 import { createProductData } from './dto/param.interface';
@@ -82,6 +88,7 @@ export class ProductController {
   })
   @ApiCreatedResponse({ description: 'Product added successfully' })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiUnauthorizedResponse({ description: 'User is not verified' })
   async createProduct(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Req() req: { user: User },
@@ -89,6 +96,19 @@ export class ProductController {
     @Res() res: Response,
   ) {
     let response: CreateProductResponse;
+
+    if (!req.user.merchant_or_manufacturer_verified) {
+      response = {
+        message: 'User is not verified',
+        valid: false,
+        error: NS_010,
+        dialog: {
+          header: 'Not Authorized',
+          message: 'User is not verified',
+        },
+      };
+      return res.status(HttpStatus.UNAUTHORIZED).json(response);
+    }
 
     let imageFiles = files['image'];
 

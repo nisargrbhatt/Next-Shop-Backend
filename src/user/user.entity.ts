@@ -63,6 +63,14 @@ export class User extends Model<User> {
   })
   email_verified: boolean;
 
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: true,
+    comment: 'Merchant Verified',
+    defaultValue: false,
+  })
+  merchant_or_manufacturer_verified: boolean;
+
   @HasMany(() => Address)
   addresses: Address[];
 
@@ -78,7 +86,6 @@ export class User extends Model<User> {
   toJSON() {
     return {
       ...this.get(),
-      password: undefined,
       email_otp: undefined,
     };
   }

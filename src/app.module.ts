@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './core/database/database.module';
 import { UserModule } from './user/user.module';
 import { SharedService } from './shared/shared.service';
+import { KycModule } from './kyc/kyc.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SharedService } from './shared/shared.service';
     UserModule,
     MorganModule,
     CacheModule.register(),
+    KycModule,
   ],
   controllers: [AppController],
   providers: [AppService, SharedService, ...AppProviders],

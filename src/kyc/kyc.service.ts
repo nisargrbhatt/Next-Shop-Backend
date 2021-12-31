@@ -83,4 +83,15 @@ export class KycService {
     );
     this.logger.log(`${kycApproval.user.name}'s KYC approval Rejected.`);
   }
+
+  async findAllKycByMerchantManufacturerId(
+    id: string,
+  ): Promise<{ count: number; rows: KYC[] }> {
+    return await this.KYCRepository.findAndCountAll<KYC>({
+      where: {
+        userId: id,
+      },
+      include: [User, KYCImage],
+    });
+  }
 }

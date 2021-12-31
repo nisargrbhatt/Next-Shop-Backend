@@ -48,6 +48,8 @@ import {
   CreateKycApprovalResponse,
   FindAllApprovalPendingResponse,
   FindAllApprovalPendingResponseData,
+  GetKYCApprovalByMerchantManufacturerIdResponse,
+  GetKYCApprovalByMerchantManufacturerIdResponseData,
   GetKycApprovalResponse,
 } from './dto/response.dto';
 import { createAndStoreKYCImageData } from './kyc-image/dto/param.interface';
@@ -436,7 +438,43 @@ export class KycController {
     response = {
       message: 'KYC Approval fetched successfully',
       valid: true,
-      kyc: fetchedKycApproval,
+      data: fetchedKycApproval,
+    };
+    return res.status(HttpStatus.FOUND).json(response);
+  }
+
+  @Get('getKYCApprovalByMerchantManufacturerId')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('access-token')
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiFoundResponse({ description: 'KYC Approvals fetched successfully' })
+  async getKYCApprovalByMerchantManufacturerId(
+    @Req() req: { user: User },
+    @Res() res: Response,
+  ): Promise<Response<GetKYCApprovalByMerchantManufacturerIdResponse>> {
+    let response: GetKYCApprovalByMerchantManufacturerIdResponse;
+
+    let fetchedKycApprovals: GetKYCApprovalByMerchantManufacturerIdResponseData;
+    try {
+      fetchedKycApprovals =
+        await this.kycService.findAllKycByMerchantManufacturerId(req.user.id);
+    } catch (error) {
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'KYC Approvals fetched successfully',
+      valid: true,
+      data: fetchedKycApprovals,
     };
     return res.status(HttpStatus.FOUND).json(response);
   }

@@ -73,7 +73,7 @@ export class KYCImageController {
   })
   @ApiCreatedResponse({ description: 'Image added successfully' })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  async addImage(
+  async addKYCImage(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Req() req: { user: User },
     @Body() body: AddKYCImageDto,
@@ -182,7 +182,7 @@ export class KYCImageController {
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
   @ApiUnauthorizedResponse({ description: 'Not authorized for this operation' })
   @ApiOkResponse({ description: 'Image deleted successfully' })
-  async deleteImage(
+  async deleteKYCImage(
     @Req() req: { user: User },
     @Query('imageId') imageId: string,
     @Res() res: Response,
@@ -236,7 +236,7 @@ export class KYCImageController {
   @ApiResponse({ type: GetImageByKycIdResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
   @ApiFoundResponse({ description: 'Image fetched successfuly' })
-  async getImageByProductId(
+  async getImageByKycId(
     @Query('kycId') kycId: string,
     @Res() res: Response,
   ): Promise<Response<GetImageByKycIdResponse>> {

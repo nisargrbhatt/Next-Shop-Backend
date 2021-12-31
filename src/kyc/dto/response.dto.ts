@@ -16,6 +16,11 @@ export interface FindAllApprovalPendingResponseData {
   rows: KYC[];
 }
 
+export interface GetKYCApprovalByMerchantManufacturerIdResponseData {
+  count: number;
+  rows: KYC[];
+}
+
 export class CreateKycApprovalResponse {
   @ApiResponseProperty({ type: String })
   message: string;
@@ -103,5 +108,30 @@ export class GetKycApprovalResponse {
   @ApiResponseProperty({
     type: Object,
   })
-  kyc?: KYC;
+  data?: KYC;
+}
+
+export class GetKYCApprovalByMerchantManufacturerIdResponse {
+  @ApiResponseProperty({ type: String })
+  message: string;
+
+  @ApiResponseProperty({ type: Boolean, example: 'true/false' })
+  valid: boolean;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "code:'Error code',message:'Error message'",
+  })
+  error?: errorData;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "header:'Dialog header',message:'Dialog message'",
+  })
+  dialog?: dialogData;
+
+  @ApiResponseProperty({
+    type: Object,
+  })
+  data?: GetKYCApprovalByMerchantManufacturerIdResponseData;
 }

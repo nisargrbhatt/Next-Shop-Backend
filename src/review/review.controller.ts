@@ -63,7 +63,7 @@ export class ReviewController {
   ) {
     let response: AddReviewResponse;
 
-    let createReviewData: createReviewData = {
+    const createReviewData: createReviewData = {
       ...body,
       userId: req.user.id,
     };
@@ -119,7 +119,7 @@ export class ReviewController {
   ) {
     let response: UpdateReviewResponse;
 
-    let updateReviewData = {
+    const updateReviewData = {
       ...body,
       reviewId: undefined,
     };

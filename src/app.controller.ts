@@ -13,7 +13,7 @@ import {
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
-import { Response, Express, Request } from 'express';
+import { Response } from 'express';
 import { AppService } from './app.service';
 import { SharedService } from './shared/shared.service';
 
@@ -63,15 +63,15 @@ export class AppController {
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() body: FileUploadDto,
     @Res() res: Response,
-  ) {
-    let imageFiles = files['file'];
-    let responseFiles = [];
+  ): Promise<any> {
+    const imageFiles = files['file'];
+    const responseFiles = [];
     this.logger.log('Loop Started');
 
     for (let i = 0; i < imageFiles.length; i++) {
-      let currentFile = imageFiles[i];
+      const currentFile = imageFiles[i];
 
-      let uploadedFile;
+      let uploadedFile: { filePath: string; error: boolean; fileName: string };
       try {
         uploadedFile = await this.sharedService.uploadImageFile(
           currentFile.buffer,
@@ -89,8 +89,11 @@ export class AppController {
 
   @Post('testEmail')
   @ApiBody({ type: EmailSendDto })
-  async testEmail(@Body() body: EmailSendDto, @Res() res: Response) {
-    let emailSent;
+  async testEmail(
+    @Body() body: EmailSendDto,
+    @Res() res: Response,
+  ): Promise<any> {
+    let emailSent: { mail: any; error: boolean };
     try {
       emailSent = await this.sharedService.sendOtpMail(body.email, body.otp);
     } catch (error) {

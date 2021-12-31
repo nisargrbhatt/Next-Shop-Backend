@@ -78,17 +78,17 @@ export class KYCImageController {
     @Req() req: { user: User },
     @Body() body: AddKYCImageDto,
     @Res() res: Response,
-  ) {
+  ): Promise<Response<AddKYCImageResponse>> {
     let response: AddKYCImageResponse;
-    let imageFiles = files['image'];
-    let uploadedFiles: Array<{
+    const imageFiles = files['image'];
+    const uploadedFiles: Array<{
       filePath: string;
       error: boolean;
       fileName: string;
     }> = [];
 
     for (let i = 0; i < imageFiles.length; i++) {
-      let currentFile = imageFiles[i];
+      const currentFile = imageFiles[i];
       let uploadedFile: { filePath: string; error: boolean; fileName: string };
       try {
         uploadedFile = await this.sharedService.uploadImageFile(
@@ -124,8 +124,8 @@ export class KYCImageController {
       uploadedFiles.push(uploadedFile);
     }
     for (let j = 0; j < uploadedFiles.length; j++) {
-      let currentImageData = uploadedFiles[j];
-      let createImageData: createKYCImageData = {
+      const currentImageData = uploadedFiles[j];
+      const createImageData: createKYCImageData = {
         name: currentImageData.fileName,
         url: currentImageData.filePath,
         kycId: body.kycId,
@@ -186,7 +186,7 @@ export class KYCImageController {
     @Req() req: { user: User },
     @Query('imageId') imageId: string,
     @Res() res: Response,
-  ) {
+  ): Promise<Response<DeleteKYCImageResponse>> {
     let response: DeleteKYCImageResponse;
 
     let deletedImage;
@@ -239,7 +239,7 @@ export class KYCImageController {
   async getImageByProductId(
     @Query('kycId') kycId: string,
     @Res() res: Response,
-  ) {
+  ): Promise<Response<GetImageByKycIdResponse>> {
     let response: GetImageByKycIdResponse;
 
     let fetchedImages: GetImageByKycIdData;

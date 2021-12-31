@@ -69,7 +69,7 @@ export class ImageService {
         return reject(new Error("Can't upload the file"));
       }
 
-      let createImageData: createImageData | any = {
+      const createImageData: createImageData | any = {
         name: uploadedFile.fileName,
         url: uploadedFile.filePath,
         productId: createAndStoreImageData.productId,

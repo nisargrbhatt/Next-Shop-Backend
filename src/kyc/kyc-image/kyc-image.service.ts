@@ -21,7 +21,10 @@ export class KYCImageService {
     return await this.KYCImageRepository.create<KYCImage>(createImageData);
   }
 
-  async update(updateImageData: any, id: string): Promise<any> {
+  async update(
+    updateImageData: any,
+    id: string,
+  ): Promise<[number, KYCImage[]]> {
     return await this.KYCImageRepository.update<KYCImage>(updateImageData, {
       where: {
         id,
@@ -29,7 +32,7 @@ export class KYCImageService {
     });
   }
 
-  async delete(id: string): Promise<any> {
+  async delete(id: string): Promise<number> {
     return await this.KYCImageRepository.destroy<KYCImage>({
       where: {
         id,
@@ -70,7 +73,7 @@ export class KYCImageService {
         return reject(new Error("Can't upload the file"));
       }
 
-      let createImageData: createKYCImageData | any = {
+      const createImageData: createKYCImageData | any = {
         name: uploadedFile.fileName,
         url: uploadedFile.filePath,
         kycId: createAndStoreImageData.kycId,

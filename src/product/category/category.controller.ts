@@ -67,7 +67,7 @@ export class CategoryController {
   ) {
     let response: AddCategoryResponse;
 
-    let createCategoryData: createCategoryData = {
+    const createCategoryData: createCategoryData = {
       ...body,
     };
 
@@ -123,7 +123,7 @@ export class CategoryController {
   ) {
     let response: UpdateCategoryResponse;
 
-    let updateCategoryData = {
+    const updateCategoryData = {
       ...body,
       categoryId: undefined,
     };

@@ -9,15 +9,11 @@ import {
   Query,
   Req,
   Res,
-  UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import {
-  FileFieldsInterceptor,
-  FileInterceptor,
-} from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -84,15 +80,15 @@ export class ImageController {
     @Res() res: Response,
   ) {
     let response: AddImageResponse;
-    let imageFiles = files['image'];
-    let uploadedFiles: Array<{
+    const imageFiles = files['image'];
+    const uploadedFiles: Array<{
       filePath: string;
       error: boolean;
       fileName: string;
     }> = [];
 
     for (let i = 0; i < imageFiles.length; i++) {
-      let currentFile = imageFiles[i];
+      const currentFile = imageFiles[i];
       let uploadedFile: { filePath: string; error: boolean; fileName: string };
       try {
         uploadedFile = await this.sharedService.uploadImageFile(
@@ -128,8 +124,8 @@ export class ImageController {
       uploadedFiles.push(uploadedFile);
     }
     for (let j = 0; j < uploadedFiles.length; j++) {
-      let currentImageData = uploadedFiles[j];
-      let createImageData: createImageData = {
+      const currentImageData = uploadedFiles[j];
+      const createImageData: createImageData = {
         name: currentImageData.fileName,
         url: currentImageData.filePath,
         productId: body.productId,

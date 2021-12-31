@@ -65,7 +65,7 @@ export class PriceController {
   ) {
     let response: AddPriceResponse;
 
-    let createPriceData: createPriceData = {
+    const createPriceData: createPriceData = {
       ...body,
       merchantId: req.user.id,
     };
@@ -122,7 +122,7 @@ export class PriceController {
   ) {
     let response: UpdatePriceResponse;
 
-    let updatePriceData = {
+    const updatePriceData = {
       ...body,
       priceId: undefined,
     };

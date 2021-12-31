@@ -100,9 +100,9 @@ export class KycController {
       return res.status(HttpStatus.BAD_REQUEST).json(response);
     }
 
-    let imageFiles = files['image'];
+    const imageFiles = files['image'];
 
-    let createKycApprovalData: CreateKycData = {
+    const createKycApprovalData: CreateKycData = {
       ...body,
       userId: req.user.id,
     };
@@ -138,9 +138,9 @@ export class KycController {
     }
 
     for (let i = 0; i < imageFiles.length; i++) {
-      let currentFile = imageFiles[i];
+      const currentFile = imageFiles[i];
 
-      let createAndStoreKycImageData: createAndStoreKYCImageData = {
+      const createAndStoreKycImageData: createAndStoreKYCImageData = {
         file: currentFile.buffer,
         kycId: createdKycApproval.id,
       };

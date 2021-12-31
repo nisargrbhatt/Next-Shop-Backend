@@ -61,7 +61,7 @@ export class CartController {
     @Req() req: { user: User },
     @Body() body: AddToCartDto,
     @Res() res: Response,
-  ) {
+  ): Promise<Response<AddToCartResponse>> {
     let response: AddToCartResponse;
 
     const createCartData: createCartData = {
@@ -118,7 +118,7 @@ export class CartController {
     @Req() req: { user: User },
     @Body() body: UpdateQuantityCartDto,
     @Res() res: Response,
-  ) {
+  ): Promise<Response<UpdateQuantityCartResponse>> {
     let response: UpdateQuantityCartResponse;
 
     let updatedCartItem;
@@ -179,7 +179,7 @@ export class CartController {
     @Req() req: { user: User },
     @Query('cartId') cartId: string,
     @Res() res: Response,
-  ) {
+  ): Promise<Response<DeleteTheItemResponse>> {
     let response: DeleteTheItemResponse;
 
     let deletedItem;
@@ -224,7 +224,10 @@ export class CartController {
   @ApiResponse({ type: GetCartResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
   @ApiFoundResponse({ description: 'Cart fetched successfully' })
-  async getCart(@Req() req: { user: User }, @Res() res: Response) {
+  async getCart(
+    @Req() req: { user: User },
+    @Res() res: Response,
+  ): Promise<Response<GetCartResponse>> {
     let response: GetCartResponse;
 
     let cartData: GetCartData;

@@ -26,37 +26,24 @@ import {
   ApiTags,
   ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
-  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 
-import { JwtService } from '@nestjs/jwt';
-import { compare, hash } from 'bcrypt';
 import { AuthGuard } from '@nestjs/passport';
-import {
-  CreateUserDto,
-  EmailOtpCheckDto,
-  LoginDto,
-  OAuthCallDto,
-} from './dto/request.dto';
+import { EmailOtpCheckDto, OAuthCallDto } from './dto/request.dto';
 import { Response } from 'express';
 import {
-  CreateUserData,
-  CreateUserResponse,
   EmailOtpCheckResponse,
   GetEmailOtpResponse,
   GetUserResponse,
-  LoginData,
-  LoginResponse,
   OAuthCallData,
   OAuthCallResponse,
 } from './dto/response.dto';
-import { createUserData, oAuthCallData } from './dto/param.interface';
+import { oAuthCallData } from './dto/param.interface';
 import { User } from './user.entity';
 import {
   NS_001,
   NS_002,
   NS_003,
-  NS_004,
   NS_005,
   NS_006,
   NS_007,
@@ -231,10 +218,13 @@ export class UserController {
   @ApiBearerAuth('access-token')
   @ApiResponse({ type: GetUserResponse })
   @ApiFoundResponse({ description: 'User fetched successfully' })
-  async getUser(@Req() req: { user: User }, @Res() res: Response) {
-    let fetchedUser: User = req.user;
+  async getUser(
+    @Req() req: { user: User },
+    @Res() res: Response,
+  ): Promise<Response<GetUserResponse>> {
+    const fetchedUser: User = req.user;
 
-    let response: GetUserResponse = {
+    const response: GetUserResponse = {
       message: 'User fetched successfully',
       valid: true,
       data: fetchedUser,
@@ -268,10 +258,10 @@ export class UserController {
     }
 
     if (req.user.email_otp_sent_time) {
-      let lastEmailSentDate: any = new Date(req.user.email_otp_sent_time);
-      let dateNow: any = new Date();
+      const lastEmailSentDate: any = new Date(req.user.email_otp_sent_time);
+      const dateNow: any = new Date();
 
-      let timeDiff = parseInt(
+      const timeDiff = parseInt(
         ((dateNow - lastEmailSentDate) / (1000 * 60)).toFixed(),
       );
       if (timeDiff < 5) {
@@ -288,9 +278,9 @@ export class UserController {
       }
     }
 
-    let generatedOtp = this.sharedService.generateOTP();
+    const generatedOtp = this.sharedService.generateOTP();
 
-    let updateUserData = {
+    const updateUserData = {
       email_otp: generatedOtp,
       email_otp_sent_time: new Date().toJSON(),
     };
@@ -379,13 +369,13 @@ export class UserController {
     @Req() req: { user: User },
     @Body() body: EmailOtpCheckDto,
     @Res() res: Response,
-  ) {
+  ): Promise<Response<EmailOtpCheckResponse>> {
     let response: EmailOtpCheckResponse;
 
-    let emailSentDate: any = new Date(req.user.email_otp_sent_time);
-    let dateNow: any = new Date();
+    const emailSentDate: any = new Date(req.user.email_otp_sent_time);
+    const dateNow: any = new Date();
 
-    let timeDiff = parseInt(
+    const timeDiff = parseInt(
       ((dateNow - emailSentDate) / (1000 * 60)).toFixed(),
     );
 
@@ -415,7 +405,7 @@ export class UserController {
       return res.status(HttpStatus.OK).json(response);
     }
 
-    let updateUserData = {
+    const updateUserData = {
       email_verified: true,
     };
     let updatedUser;
@@ -457,7 +447,10 @@ export class UserController {
 
   @Get('emailCheck')
   @ApiQuery({ name: 'email', type: String, required: true })
-  async emailCheck(@Query('email') email: string, @Res() res: Response) {
+  async emailCheck(
+    @Query('email') email: string,
+    @Res() res: Response,
+  ): Promise<Response> {
     let fetchedUser: User;
     try {
       fetchedUser = await this.userService.findOneByEmail(email);
@@ -483,7 +476,10 @@ export class UserController {
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
   @ApiCreatedResponse({ description: 'User Signed up successfully' })
   @ApiOkResponse({ description: 'User Logged in successfully' })
-  async oAuthCall(@Body() body: OAuthCallDto, @Res() res: Response) {
+  async oAuthCall(
+    @Body() body: OAuthCallDto,
+    @Res() res: Response,
+  ): Promise<Response<OAuthCallResponse>> {
     let response: OAuthCallResponse;
 
     let user: User;
@@ -506,7 +502,7 @@ export class UserController {
     }
 
     if (!user) {
-      let createUserData: oAuthCallData = {
+      const createUserData: oAuthCallData = {
         ...body,
         id: body['sub'] + '|' + body['role'],
       };
@@ -530,7 +526,7 @@ export class UserController {
 
       this.logger.log(`${createdUser.name} is Signed Up.`);
 
-      let responseData: OAuthCallData = {
+      const responseData: OAuthCallData = {
         role: createdUser.role,
         access: this.configService.get(
           createdUser.role.toUpperCase() + '_ACCESS',
@@ -551,7 +547,7 @@ export class UserController {
 
     this.logger.log(`${user.name} is Logged In.`);
 
-    let responseData: OAuthCallData = {
+    const responseData: OAuthCallData = {
       role: user.role,
       access: this.configService.get(user.role.toUpperCase() + '_ACCESS'),
       emailVerified: user.email_verified,

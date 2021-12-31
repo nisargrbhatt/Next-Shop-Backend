@@ -110,11 +110,11 @@ export class ProductController {
       return res.status(HttpStatus.UNAUTHORIZED).json(response);
     }
 
-    let imageFiles = files['image'];
+    const imageFiles = files['image'];
 
     /// To Future Me:
     /// Images is going with it so could create error
-    let createProductData: createProductData = {
+    const createProductData: createProductData = {
       ...body,
       userId: req.user.id,
     };
@@ -149,9 +149,9 @@ export class ProductController {
     }
 
     for (let i = 0; i < imageFiles.length; i++) {
-      let currentFile = imageFiles[i];
+      const currentFile = imageFiles[i];
 
-      let createAndStoreImageData: createAndStoreImageData = {
+      const createAndStoreImageData: createAndStoreImageData = {
         file: currentFile.buffer,
         productId: createdProduct.id,
       };
@@ -210,7 +210,7 @@ export class ProductController {
   ) {
     let response: UpdateProductResponse;
 
-    let updateProductData = {
+    const updateProductData = {
       ...body,
       productId: undefined,
     };
@@ -319,7 +319,7 @@ export class ProductController {
     }
 
     if (body.approval) {
-      let updateProductData = {
+      const updateProductData = {
         productApproved: true,
       };
       let updatedProduct;

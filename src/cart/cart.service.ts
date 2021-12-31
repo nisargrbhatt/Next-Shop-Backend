@@ -15,8 +15,12 @@ export class CartService {
     return await this.CartRepository.create<Cart>(createCartData);
   }
 
-  async update(updateCartData: any, id: string, userId: string): Promise<any> {
-    return await this.CartRepository.update(updateCartData, {
+  async update(
+    updateCartData: any,
+    id: string,
+    userId: string,
+  ): Promise<[number, Cart[]]> {
+    return await this.CartRepository.update<Cart>(updateCartData, {
       where: {
         id,
         userId,
@@ -41,7 +45,7 @@ export class CartService {
     quantity: number,
     id: string,
     userId: string,
-  ): Promise<any> {
+  ): Promise<[number, Cart[]]> {
     return await this.CartRepository.update<Cart>(
       {
         quantity,
@@ -55,7 +59,7 @@ export class CartService {
     );
   }
 
-  async deleteCartItem(id: string, userId: string): Promise<any> {
+  async deleteCartItem(id: string, userId: string): Promise<number> {
     return await this.CartRepository.destroy<Cart>({
       where: {
         id,

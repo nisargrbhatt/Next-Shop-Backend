@@ -1,7 +1,9 @@
 import * as admin from 'firebase-admin';
 
 // const serviceAccount = require('../../next-shop.json');
+/* eslint-disable */
 const serviceAccount = require('../../configs/next-shop');
+/* eslint-enable */
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount.serviceAccount),

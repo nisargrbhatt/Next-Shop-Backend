@@ -10,7 +10,7 @@ import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class ValidatePipe implements PipeTransform {
-  async transform(value: any, metadata: ArgumentMetadata) {
+  async transform(value: any, metadata: ArgumentMetadata): Promise<any> {
     if (value instanceof Object && this.isEmpty(value)) {
       throw new HttpException(
         {
@@ -39,12 +39,12 @@ export class ValidatePipe implements PipeTransform {
     return value;
   }
 
-  private toValidate(metatype): boolean {
+  private toValidate(metatype: any): boolean {
     const types = [String, Boolean, Number, Array, Object];
     return !types.find((type) => metatype === type);
   }
 
-  private formatErrors(errors: any[]) {
+  private formatErrors(errors: any[]): string {
     return errors
       .map((err) => {
         for (const property in err.constraints) {
@@ -54,7 +54,7 @@ export class ValidatePipe implements PipeTransform {
       .join(', ');
   }
 
-  private isEmpty(value: any) {
+  private isEmpty(value: any): boolean {
     if (Object.keys(value).length > 0) {
       return false;
     }

@@ -15,7 +15,7 @@ import { KYCImage } from 'src/kyc/kyc-image/kyc-image.entity';
 export const databaseProvider = [
   {
     provide: 'SEQUELIZE',
-    useFactory: async () => {
+    useFactory: async (): Promise<Sequelize> => {
       let config: DatabaseConfigAttributes;
 
       switch (process.env.NODE_ENV) {

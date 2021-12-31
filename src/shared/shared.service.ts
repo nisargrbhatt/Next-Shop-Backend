@@ -4,13 +4,14 @@ import { Storage } from './firebase';
 import { Bucket } from '@google-cloud/storage';
 import { getTransport } from './smtp';
 import { ConfigService } from '@nestjs/config';
+import { Transporter } from 'nodemailer';
 
 @Injectable()
 export class SharedService {
   private readonly logger = new Logger(SharedService.name);
 
   private bucket: Bucket;
-  private Transport;
+  private Transport: Transporter;
   constructor(private readonly configService: ConfigService) {
     this.bucket = Storage.bucket();
     this.Transport = getTransport(
@@ -27,7 +28,7 @@ export class SharedService {
     fileName: string,
   ): Promise<{ filePath: string; error: boolean; fileName: string }> {
     return new Promise(async (resolve, reject) => {
-      let fileNameFinal = 'images/' + fileName;
+      const fileNameFinal = 'images/' + fileName;
       try {
         const blob = this.bucket.file(fileNameFinal);
         const blobStream = blob.createWriteStream({ resumable: false });
@@ -37,7 +38,7 @@ export class SharedService {
           return reject({ filePath: null, error: true, fileName });
         });
 
-        blobStream.on('finish', async (data) => {
+        blobStream.on('finish', async () => {
           const metaData = {
             contentType: 'image/jpg',
           };
@@ -72,7 +73,7 @@ export class SharedService {
     fileName: string,
   ): Promise<{ filePath: string; error: boolean; fileName: string }> {
     return new Promise(async (resolve, reject) => {
-      let fileNameFinal = 'KYCimages/' + fileName;
+      const fileNameFinal = 'KYCimages/' + fileName;
       try {
         const blob = this.bucket.file(fileNameFinal);
         const blobStream = blob.createWriteStream({ resumable: false });
@@ -82,7 +83,7 @@ export class SharedService {
           return reject({ filePath: null, error: true, fileName });
         });
 
-        blobStream.on('finish', async (data) => {
+        blobStream.on('finish', async () => {
           const metaData = {
             contentType: 'image/jpg',
           };
@@ -118,7 +119,10 @@ export class SharedService {
   /////////////////////////////////////////
   ////////MAILSERVICES/////////////////////
 
-  async sendOtpMail(email: string, otp: string): Promise<any> {
+  async sendOtpMail(
+    email: string,
+    otp: string,
+  ): Promise<{ mail: any; error: boolean }> {
     const mailOptions = {
       from: '181200107002@asoit.edu.in',
       to: email,
@@ -127,11 +131,11 @@ export class SharedService {
     };
 
     let emailSent;
-    let error: boolean = false;
+    let error = false;
     try {
       emailSent = await this.Transport.sendMail(mailOptions);
-    } catch (error) {
-      this.logger.error(error);
+    } catch (error1) {
+      this.logger.error(error1);
       error = true;
     }
     return { mail: emailSent, error };
@@ -149,11 +153,11 @@ export class SharedService {
     };
 
     let emailSent;
-    let error: boolean = false;
+    let error = false;
     try {
       emailSent = await this.Transport.sendMail(mailOptions);
-    } catch (error) {
-      this.logger.error(error);
+    } catch (error1) {
+      this.logger.error(error1);
       error = true;
     }
     return { mail: emailSent, error };
@@ -171,11 +175,11 @@ export class SharedService {
     };
 
     let emailSent;
-    let error: boolean = false;
+    let error = false;
     try {
       emailSent = await this.Transport.sendMail(mailOptions);
-    } catch (error) {
-      this.logger.error(error);
+    } catch (error1) {
+      this.logger.error(error1);
       error = true;
     }
     return { mail: emailSent, error };

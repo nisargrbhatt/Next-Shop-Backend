@@ -11,8 +11,10 @@ import {
   Res,
   UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -73,9 +75,10 @@ export class KycController {
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'image', maxCount: 5 }]))
   @ApiBody({ type: CreateKycApprovalDto })
   @ApiResponse({ type: CreateKycApprovalResponse })
-  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiBadRequestResponse({ description: 'User is already verified' })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
   @ApiUnprocessableEntityResponse({
     description: 'KYC Data is not processable',
@@ -91,7 +94,7 @@ export class KycController {
 
     if (req.user.merchant_or_manufacturer_verified) {
       response = {
-        message: 'User is not verified',
+        message: 'User is already verified',
         valid: false,
         error: NS_005,
         dialog: {

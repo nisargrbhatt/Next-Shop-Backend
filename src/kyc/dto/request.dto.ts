@@ -58,6 +58,7 @@ export class CreateKycApprovalDto {
     required: true,
   })
   @IsNotEmpty()
+  @IsOptional()
   image: any[];
 }
 

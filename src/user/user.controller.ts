@@ -533,7 +533,7 @@ export class UserController {
         ),
         emailVerified: createdUser.email_verified,
         userId: createdUser.id,
-        merchantVerified: user.merchant_or_manufacturer_verified,
+        merchantVerified: createdUser.merchant_or_manufacturer_verified,
       };
 
       response = {

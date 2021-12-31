@@ -24,7 +24,7 @@ export interface OAuthCallData {
   access: string;
   emailVerified: boolean;
   userId: string;
-  merchantVerified?: boolean;
+  merchantVerified: boolean;
 }
 
 export interface LoginData {

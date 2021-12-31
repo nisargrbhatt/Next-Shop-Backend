@@ -265,6 +265,9 @@ export class ProductController {
   @ApiUnauthorizedResponse({ description: 'Not authorized for this operation' })
   @ApiOkResponse({ description: 'Product declined successfully' })
   @ApiAcceptedResponse({ description: 'Product approved successfully' })
+  @ApiUnprocessableEntityResponse({
+    description: 'Product Data is not processable',
+  })
   async approveProduct(
     @Req() req: { user: User },
     @Body() body: ApproveProductDto,
@@ -283,6 +286,36 @@ export class ProductController {
         },
       };
       return res.status(HttpStatus.UNAUTHORIZED).json(response);
+    }
+
+    let fetchedProduct: Product;
+    try {
+      fetchedProduct = await this.productService.findByPk(body.productId);
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    if (!fetchedProduct) {
+      response = {
+        message: 'Product Data is not processable',
+        valid: false,
+        error: NS_001,
+        dialog: {
+          header: 'Wrong input',
+          message: 'Product input is not processable',
+        },
+      };
+      return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(response);
     }
 
     if (body.approval) {
@@ -329,7 +362,7 @@ export class ProductController {
       let emailSent: { mail: any; error: boolean };
       try {
         emailSent = await this.sharedService.sendProductRejectMail(
-          req.user.email,
+          fetchedProduct.user.email,
           body.declineReason,
         );
       } catch (error) {

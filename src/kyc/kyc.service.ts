@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { KYC_REPOSITORY } from 'src/core/constants/constants';
+
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { CreateKycData } from './dto/param.interface';

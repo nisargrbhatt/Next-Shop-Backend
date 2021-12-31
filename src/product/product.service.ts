@@ -41,7 +41,9 @@ export class ProductService {
   }
 
   async findByPk(id: string): Promise<Product> {
-    return await this.ProductRepository.findByPk<Product>(id);
+    return await this.ProductRepository.findByPk<Product>(id, {
+      include: [User],
+    });
   }
 
   async findProductWithCategory(id: string): Promise<Product> {

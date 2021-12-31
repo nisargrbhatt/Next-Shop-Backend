@@ -159,6 +159,28 @@ export class SharedService {
     return { mail: emailSent, error };
   }
 
+  async sendKYCRejectMail(email: string, reason: string): Promise<any> {
+    const mailOptions = {
+      from: '181200107002@asoit.edu.in',
+      to: email,
+      subject: 'KYC declined',
+      html: `
+      <h1>Your KYC approval is declined by our admin</h1>
+      <p>Reason: ${reason}</p>
+      `,
+    };
+
+    let emailSent;
+    let error: boolean = false;
+    try {
+      emailSent = await this.Transport.sendMail(mailOptions);
+    } catch (error) {
+      this.logger.error(error);
+      error = true;
+    }
+    return { mail: emailSent, error };
+  }
+
   /////////////////////////////////////////
   /////////////////////////////////////////
 

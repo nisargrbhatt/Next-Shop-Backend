@@ -192,15 +192,42 @@ export class KycController {
   @Get('findAllApprovalPending')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    description: 'Search Text',
+    required: false,
+  })
   @ApiResponse({ type: FindAllApprovalPendingResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
   @ApiOkResponse({ description: 'Pending KYC Approvals fetched successfully' })
-  async findAllApprovalPending(@Res() res: Response) {
+  async findAllApprovalPending(
+    @Query('currentPage') currentPage: string,
+    @Query('pageSize') pageSize: string,
+    @Query('search') search: string,
+    @Res() res: Response,
+  ) {
     let response: FindAllApprovalPendingResponse;
 
     let pendingKycApprovals: FindAllApprovalPendingResponseData;
     try {
-      pendingKycApprovals = await this.kycService.findAllApprovalPending();
+      pendingKycApprovals = await this.kycService.findAllApprovalPending(
+        Number(currentPage),
+        Number(pageSize),
+        search,
+      );
     } catch (error) {
       this.logger.error(error);
       response = {

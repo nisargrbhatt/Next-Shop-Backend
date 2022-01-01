@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Op } from 'sequelize';
 import { KYC_REPOSITORY } from 'src/core/constants/constants';
 
 import { User } from 'src/user/user.entity';
@@ -43,13 +44,44 @@ export class KycService {
     });
   }
 
-  async findAllApprovalPending(): Promise<{ count: number; rows: KYC[] }> {
-    return await this.KYCRepository.findAndCountAll<KYC>({
-      where: {
-        kyc_approval: false,
-      },
-      include: [KYCImage, User],
-    });
+  async findAllApprovalPending(
+    currentPage: number,
+    pageSize: number,
+    search?: string,
+  ): Promise<{ count: number; rows: KYC[] }> {
+    if (search && search.length > 0) {
+      return await this.KYCRepository.findAndCountAll<KYC>({
+        where: {
+          kyc_approval: false,
+          [Op.or]: [
+            {
+              name: { [Op.iRegexp]: search },
+            },
+            {
+              aadhaar_number: { [Op.iRegexp]: search },
+            },
+            {
+              contact_no: { [Op.iRegexp]: search },
+            },
+            {
+              email: { [Op.iRegexp]: search },
+            },
+          ],
+        },
+
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
+      });
+    } else {
+      return await this.KYCRepository.findAndCountAll<KYC>({
+        where: {
+          kyc_approval: false,
+        },
+
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
+      });
+    }
   }
 
   async acceptTheKYCApproval(id: string): Promise<void> {

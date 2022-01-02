@@ -132,6 +132,7 @@ export class KycService {
     this.logger.log(`${kycApproval.user.name}'s KYC approval Rejected.`);
   }
 
+  // When Counts comes wrong do this {col,distinct}
   async findAllKycByMerchantManufacturerId(
     id: string,
   ): Promise<{ count: number; rows: KYC[] }> {
@@ -140,6 +141,8 @@ export class KycService {
         userId: id,
       },
       include: [User, KYCImage],
+      col: 'id',
+      distinct: true,
     });
   }
 }

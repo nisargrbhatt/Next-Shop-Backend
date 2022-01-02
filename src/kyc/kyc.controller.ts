@@ -308,11 +308,8 @@ export class KycController {
     }
 
     if (body.approval) {
-      let acceptedKycApproval;
       try {
-        acceptedKycApproval = await this.kycService.acceptTheKYCApproval(
-          body.kycId,
-        );
+        await this.kycService.acceptTheKYCApproval(body.kycId);
       } catch (error) {
         this.logger.error(error);
         response = {
@@ -325,19 +322,6 @@ export class KycController {
           },
         };
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
-      }
-
-      if (!acceptedKycApproval) {
-        response = {
-          message: 'Not authorized for this operation',
-          valid: false,
-          error: NS_003,
-          dialog: {
-            header: 'Not Authorized',
-            message: 'You are not authorized for this operation',
-          },
-        };
-        return res.status(HttpStatus.UNAUTHORIZED).json(response);
       }
 
       response = {
@@ -346,11 +330,8 @@ export class KycController {
       };
       return res.status(HttpStatus.ACCEPTED).json(response);
     } else {
-      let declinedKycApproval;
       try {
-        declinedKycApproval = await this.kycService.declineTheKYCApproval(
-          body.kycId,
-        );
+        await this.kycService.declineTheKYCApproval(body.kycId);
       } catch (error) {
         this.logger.error(error);
         response = {
@@ -363,18 +344,6 @@ export class KycController {
           },
         };
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
-      }
-      if (!declinedKycApproval) {
-        response = {
-          message: 'Not authorized for this operation',
-          valid: false,
-          error: NS_003,
-          dialog: {
-            header: 'Not Authorized',
-            message: 'You are not authorized for this operation',
-          },
-        };
-        return res.status(HttpStatus.UNAUTHORIZED).json(response);
       }
 
       let emailSent: { mail: any; error: boolean };

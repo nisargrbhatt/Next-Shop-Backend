@@ -86,33 +86,49 @@ export class KycService {
 
   async acceptTheKYCApproval(id: string): Promise<void> {
     const kycApproval = await this.findByPk(id);
-    await this.KYCRepository.update(
-      {
-        kyc_approval: true,
-        admin_decision: true,
-      },
-      { where: { id } },
-    );
-    await this.userService.update(
-      { merchant_or_manufacturer_verified: true },
-      kycApproval.userId,
-    );
+    try {
+      await this.KYCRepository.update(
+        {
+          kyc_approval: true,
+          admin_decision: true,
+        },
+        { where: { id } },
+      );
+    } catch (error) {
+      this.logger.error(error);
+    }
+    try {
+      await this.userService.update(
+        { merchant_or_manufacturer_verified: true },
+        kycApproval.userId,
+      );
+    } catch (error) {
+      this.logger.error(error);
+    }
     this.logger.log(`${kycApproval.user.name}'s KYC approval Accepted.`);
   }
 
   async declineTheKYCApproval(id: string): Promise<void> {
     const kycApproval = await this.findByPk(id);
-    await this.KYCRepository.update(
-      {
-        kyc_approval: true,
-        admin_decision: false,
-      },
-      { where: { id } },
-    );
-    await this.userService.update(
-      { merchant_or_manufacturer_verified: false },
-      kycApproval.userId,
-    );
+    try {
+      await this.KYCRepository.update(
+        {
+          kyc_approval: true,
+          admin_decision: false,
+        },
+        { where: { id } },
+      );
+    } catch (error) {
+      this.logger.error(error);
+    }
+    try {
+      await this.userService.update(
+        { merchant_or_manufacturer_verified: false },
+        kycApproval.userId,
+      );
+    } catch (error) {
+      this.logger.error(error);
+    }
     this.logger.log(`${kycApproval.user.name}'s KYC approval Rejected.`);
   }
 

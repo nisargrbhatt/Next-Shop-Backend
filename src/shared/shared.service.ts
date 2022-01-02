@@ -4,14 +4,13 @@ import { Storage } from './firebase';
 import { Bucket } from '@google-cloud/storage';
 import { getTransport } from './smtp';
 import { ConfigService } from '@nestjs/config';
-import { Transporter } from 'nodemailer';
 
 @Injectable()
 export class SharedService {
   private readonly logger = new Logger(SharedService.name);
 
   private bucket: Bucket;
-  private Transport: Transporter;
+  private Transport;
   constructor(private readonly configService: ConfigService) {
     this.bucket = Storage.bucket();
     this.Transport = getTransport(

@@ -43,6 +43,36 @@ export class Product extends Model<Product> {
   specification: string;
 
   @Column({
+    type: DataType.TEXT,
+    allowNull: false,
+    unique: true,
+  })
+  slug: string;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+    comment: 'Decline Count',
+    defaultValue: 0,
+  })
+  decline_count: number;
+
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+    comment: 'Decline Reason',
+  })
+  decline_reason: string;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    comment: 'Approval Status',
+  })
+  approval_status: boolean;
+
+  @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
     defaultValue: false,

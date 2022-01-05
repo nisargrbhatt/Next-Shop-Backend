@@ -15,11 +15,11 @@ export class CreateProductDto {
     type: 'file',
     isArray: true,
     maxItems: 5,
-    name: 'photo',
+    name: 'image',
     description: 'Images of the product',
-    required: true,
+    required: false,
   })
-  @IsNotEmpty()
+  @IsOptional()
   image: any[];
 
   @ApiProperty({
@@ -93,9 +93,9 @@ export class UpdateProductDto {
     type: String,
     description: 'Product Id',
     name: 'productId',
-    required: false,
+    required: true,
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsUUID(4)
   productId: string;
 }
@@ -129,4 +129,16 @@ export class ApproveProductDto {
   })
   @IsOptional()
   declineReason: string;
+}
+
+export class RenewTheApprovalForProductDto {
+  @ApiProperty({
+    type: String,
+    description: 'Product Id',
+    name: 'productId',
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsUUID(4)
+  productId: string;
 }

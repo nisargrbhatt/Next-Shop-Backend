@@ -56,6 +56,7 @@
     "rxjs": "^7.4.0",
     "sequelize": "^6.12.2",
     "sequelize-typescript": "^2.1.1",
+    "slugify": "^1.6.5",
     "swagger-ui-express": "^4.3.0"
   },
   "devDependencies": {

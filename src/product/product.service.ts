@@ -24,7 +24,7 @@ export class ProductService {
     updateProductData: any,
     id: string,
     userId: string,
-  ): Promise<any> {
+  ): Promise<[number, Product[]]> {
     return await this.ProductRepository.update<Product>(updateProductData, {
       where: {
         id,
@@ -32,7 +32,10 @@ export class ProductService {
       },
     });
   }
-  async updateByAdmin(updateProductData: any, id: string): Promise<any> {
+  async updateByAdmin(
+    updateProductData: any,
+    id: string,
+  ): Promise<[number, Product[]]> {
     return await this.ProductRepository.update<Product>(updateProductData, {
       where: {
         id,
@@ -46,45 +49,91 @@ export class ProductService {
     });
   }
 
-  async findProductWithCategory(id: string): Promise<Product> {
-    return await this.ProductRepository.findOne<Product>({
-      where: { id, productApproved: true },
-      include: [{ model: Category }, { model: Image }],
-    });
+  async findProductWithCategory(id?: string, slug?: string): Promise<Product> {
+    if (id) {
+      return await this.ProductRepository.findOne<Product>({
+        where: { id, productApproved: true },
+        include: [{ model: Category }, { model: Image }],
+      });
+    } else {
+      return await this.ProductRepository.findOne<Product>({
+        where: { slug, productApproved: true },
+        include: [{ model: Category }, { model: Image }],
+      });
+    }
   }
 
-  async findProductWithCategoryPrice(id: string): Promise<Product> {
-    return await this.ProductRepository.findOne<Product>({
-      where: { id, productApproved: true },
-      include: [{ model: Category }, { model: Price }, { model: Image }],
-    });
+  async findProductWithCategoryPrice(
+    id?: string,
+    slug?: string,
+  ): Promise<Product> {
+    if (id) {
+      return await this.ProductRepository.findOne<Product>({
+        where: { id, productApproved: true },
+        include: [{ model: Category }, { model: Price }, { model: Image }],
+      });
+    } else {
+      return await this.ProductRepository.findOne<Product>({
+        where: { slug, productApproved: true },
+        include: [{ model: Category }, { model: Price }, { model: Image }],
+      });
+    }
   }
 
-  async findProductWithCategoryPriceReview(id: string): Promise<Product> {
-    return await this.ProductRepository.findOne<Product>({
-      where: { id, productApproved: true },
-      include: [
-        { model: Category },
-        { model: Price },
-        { model: Review },
-        { model: Image },
-      ],
-    });
+  async findProductWithCategoryPriceReview(
+    id?: string,
+    slug?: string,
+  ): Promise<Product> {
+    if (id) {
+      return await this.ProductRepository.findOne<Product>({
+        where: { id, productApproved: true },
+        include: [
+          { model: Category },
+          { model: Price },
+          { model: Review },
+          { model: Image },
+        ],
+      });
+    } else {
+      return await this.ProductRepository.findOne<Product>({
+        where: { slug, productApproved: true },
+        include: [
+          { model: Category },
+          { model: Price },
+          { model: Review },
+          { model: Image },
+        ],
+      });
+    }
   }
 
   async findProductWithCategoryPriceReviewManufacturer(
-    id: string,
+    id?: string,
+    slug?: string,
   ): Promise<Product> {
-    return await this.ProductRepository.findOne<Product>({
-      where: { id, productApproved: true },
-      include: [
-        { model: Category },
-        { model: Price },
-        { model: Review },
-        { model: User },
-        { model: Image },
-      ],
-    });
+    if (id) {
+      return await this.ProductRepository.findOne<Product>({
+        where: { id, productApproved: true },
+        include: [
+          { model: Category },
+          { model: Price },
+          { model: Review },
+          { model: User },
+          { model: Image },
+        ],
+      });
+    } else {
+      return await this.ProductRepository.findOne<Product>({
+        where: { slug, productApproved: true },
+        include: [
+          { model: Category },
+          { model: Price },
+          { model: Review },
+          { model: User },
+          { model: Image },
+        ],
+      });
+    }
   }
 
   async findProductRequiredApproval(): Promise<{
@@ -93,13 +142,13 @@ export class ProductService {
   }> {
     return await this.ProductRepository.findAndCountAll<Product>({
       where: {
-        productApproved: false,
+        approval_status: false,
       },
       include: [{ model: User }, { model: Image }],
     });
   }
 
-  async deleteProduct(id: string): Promise<any> {
+  async deleteProduct(id: string): Promise<number> {
     return await this.ProductRepository.destroy<Product>({
       where: {
         id,
@@ -113,8 +162,9 @@ export class ProductService {
   async findProductsWithCategoryBySearch(
     search: string,
   ): Promise<{ count: number; rows: Product[] }> {
-    return await this.ProductRepository.findAndCountAll({
+    return await this.ProductRepository.findAndCountAll<Product>({
       where: {
+        productApproved: true,
         [Op.or]: [
           {
             name: {
@@ -135,11 +185,67 @@ export class ProductService {
   async findProductsWithCategoryByManufacturerId(
     userId: string,
   ): Promise<{ count: number; rows: Product[] }> {
-    return await this.ProductRepository.findAndCountAll({
+    return await this.ProductRepository.findAndCountAll<Product>({
       where: {
         userId,
+        productApproved: true,
       },
       include: [{ model: Category }, { model: Image }],
     });
+  }
+
+  async findProductsWithCategoryByManufacturerIdApprovalPending(
+    userId: string,
+  ): Promise<{ count: number; rows: Product[] }> {
+    return await this.ProductRepository.findAndCountAll<Product>({
+      where: {
+        userId,
+        productApproved: false,
+      },
+      include: [{ model: Category }, { model: Image }],
+    });
+  }
+
+  async findOneBySlug(slug: string): Promise<number> {
+    return await this.ProductRepository.count<Product>({
+      where: {
+        slug,
+      },
+    });
+  }
+
+  async productDeclined(
+    currentCount: number,
+    reason: string,
+    productId: string,
+  ): Promise<[number, Product[]]> {
+    return await this.ProductRepository.update<Product>(
+      {
+        decline_count: currentCount + 1,
+        decline_reason: reason,
+      },
+      {
+        where: {
+          id: productId,
+        },
+      },
+    );
+  }
+
+  async approvalRenew(
+    id: string,
+    userId: string,
+  ): Promise<[number, Product[]]> {
+    return await this.ProductRepository.update<Product>(
+      {
+        approval_status: false,
+      },
+      {
+        where: {
+          id,
+          userId,
+        },
+      },
+    );
   }
 }

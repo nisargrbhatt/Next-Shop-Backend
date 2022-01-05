@@ -45,6 +45,7 @@ import { createProductData } from './dto/param.interface';
 import {
   ApproveProductDto,
   CreateProductDto,
+  RenewTheApprovalForProductDto,
   UpdateProductDto,
 } from './dto/request.dto';
 import {
@@ -57,6 +58,7 @@ import {
   GetProductWithCategoryByManufacturerIdResponse,
   GetProductWithCategoryBySearchData,
   GetProductWithCategoryBySearchResponse,
+  RenewTheApprovalForProductResponse,
   UpdateProductResponse,
 } from './dto/response.dto';
 import { createAndStoreImageData } from './image/dto/param.interface';
@@ -64,6 +66,8 @@ import { Image } from './image/image.entity';
 import { ImageService } from './image/image.service';
 import { Product } from './product.entity';
 import { ProductService } from './product.service';
+
+import * as slugify from 'slugify';
 
 @Controller('product')
 @ApiTags('Product')
@@ -110,12 +114,29 @@ export class ProductController {
       return res.status(HttpStatus.UNAUTHORIZED).json(response);
     }
 
+    // Product Slig Creation
+    let adder = '';
+    let productSlug: string;
+    while (true) {
+      productSlug = slugify.default(body.name + adder);
+
+      const productSlugCount = await this.productService.findOneBySlug(
+        productSlug,
+      );
+
+      if (productSlugCount < 1) {
+        break;
+      }
+      adder += '1';
+    }
+
     const imageFiles = files['image'];
 
     /// To Future Me:
     /// Images is going with it so could create error
     const createProductData: createProductData = {
       ...body,
+      slug: productSlug,
       userId: req.user.id,
     };
 
@@ -321,6 +342,7 @@ export class ProductController {
     if (body.approval) {
       const updateProductData = {
         productApproved: true,
+        approval_status: true,
       };
       let updatedProduct;
       try {
@@ -359,6 +381,73 @@ export class ProductController {
       };
       return res.status(HttpStatus.ACCEPTED).json(response);
     } else {
+      if (fetchedProduct.decline_count > 2) {
+        let deletedProduct: number;
+        try {
+          deletedProduct = await this.productService.deleteProduct(
+            body.productId,
+          );
+        } catch (error) {
+          this.logger.error(error);
+          response = {
+            message: 'Something went wrong',
+            valid: false,
+            error: NS_002,
+            dialog: {
+              header: 'Server error',
+              message: 'There is some error in server. Please try again later',
+            },
+          };
+          return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+        }
+
+        if (!deletedProduct) {
+          response = {
+            message: 'Not authorized for this operation',
+            valid: false,
+            error: NS_003,
+            dialog: {
+              header: 'Not Authorized',
+              message: 'You are not authorized for this operation',
+            },
+          };
+          return res.status(HttpStatus.UNAUTHORIZED).json(response);
+        }
+      } else {
+        let updatedProduct: [number, Product[]];
+        try {
+          updatedProduct = await this.productService.productDeclined(
+            fetchedProduct.decline_count,
+            body.declineReason,
+            body.productId,
+          );
+        } catch (error) {
+          this.logger.error(error);
+          response = {
+            message: 'Something went wrong',
+            valid: false,
+            error: NS_002,
+            dialog: {
+              header: 'Server error',
+              message: 'There is some error in server. Please try again later',
+            },
+          };
+          return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+        }
+        if (!updatedProduct) {
+          response = {
+            message: 'Not authorized for this operation',
+            valid: false,
+            error: NS_003,
+            dialog: {
+              header: 'Not Authorized',
+              message: 'You are not authorized for this operation',
+            },
+          };
+          return res.status(HttpStatus.UNAUTHORIZED).json(response);
+        }
+      }
+
       let emailSent: { mail: any; error: boolean };
       try {
         emailSent = await this.sharedService.sendProductRejectMail(
@@ -390,38 +479,6 @@ export class ProductController {
           },
         };
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
-      }
-
-      let deletedProduct;
-      try {
-        deletedProduct = await this.productService.deleteProduct(
-          body.productId,
-        );
-      } catch (error) {
-        this.logger.error(error);
-        response = {
-          message: 'Something went wrong',
-          valid: false,
-          error: NS_002,
-          dialog: {
-            header: 'Server error',
-            message: 'There is some error in server. Please try again later',
-          },
-        };
-        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
-      }
-
-      if (!deletedProduct) {
-        response = {
-          message: 'Not authorized for this operation',
-          valid: false,
-          error: NS_003,
-          dialog: {
-            header: 'Not Authorized',
-            message: 'You are not authorized for this operation',
-          },
-        };
-        return res.status(HttpStatus.UNAUTHORIZED).json(response);
       }
 
       response = {
@@ -526,7 +583,13 @@ export class ProductController {
     type: String,
     name: 'productId',
     description: 'Product Id',
-    required: true,
+    required: false,
+  })
+  @ApiQuery({
+    type: String,
+    name: 'productSlug',
+    description: 'Product Slug',
+    required: false,
   })
   @ApiResponse({ type: GetProductResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
@@ -535,7 +598,7 @@ export class ProductController {
   })
   @ApiFoundResponse({ description: 'Product fetched successfully' })
   async getProductWithCategory(
-    @Query('productId') productId: string,
+    @Query() query: { productId?: string; productSlug?: string },
     @Res() res: Response,
   ) {
     let response: GetProductResponse;
@@ -543,7 +606,8 @@ export class ProductController {
     let fetchedProduct: Product;
     try {
       fetchedProduct = await this.productService.findProductWithCategory(
-        productId,
+        query.productId,
+        query.productSlug,
       );
     } catch (error) {
       this.logger.error(error);
@@ -585,7 +649,13 @@ export class ProductController {
     type: String,
     name: 'productId',
     description: 'Product Id',
-    required: true,
+    required: false,
+  })
+  @ApiQuery({
+    type: String,
+    name: 'productSlug',
+    description: 'Product Slug',
+    required: false,
   })
   @ApiResponse({ type: GetProductResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
@@ -594,7 +664,7 @@ export class ProductController {
   })
   @ApiFoundResponse({ description: 'Product fetched successfully' })
   async getProductWithCategoryPrice(
-    @Query('productId') productId: string,
+    @Query() query: { productId?: string; productSlug?: string },
     @Res() res: Response,
   ) {
     let response: GetProductResponse;
@@ -602,7 +672,8 @@ export class ProductController {
     let fetchedProduct: Product;
     try {
       fetchedProduct = await this.productService.findProductWithCategoryPrice(
-        productId,
+        query.productId,
+        query.productSlug,
       );
     } catch (error) {
       this.logger.error(error);
@@ -644,7 +715,13 @@ export class ProductController {
     type: String,
     name: 'productId',
     description: 'Product Id',
-    required: true,
+    required: false,
+  })
+  @ApiQuery({
+    type: String,
+    name: 'productSlug',
+    description: 'Product Slug',
+    required: false,
   })
   @ApiResponse({ type: GetProductResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
@@ -653,7 +730,7 @@ export class ProductController {
   })
   @ApiFoundResponse({ description: 'Product fetched successfully' })
   async getProductWithCategoryPriceReview(
-    @Query('productId') productId: string,
+    @Query() query: { productId?: string; productSlug?: string },
     @Res() res: Response,
   ) {
     let response: GetProductResponse;
@@ -661,7 +738,10 @@ export class ProductController {
     let fetchedProduct: Product;
     try {
       fetchedProduct =
-        await this.productService.findProductWithCategoryPriceReview(productId);
+        await this.productService.findProductWithCategoryPriceReview(
+          query.productId,
+          query.productSlug,
+        );
     } catch (error) {
       this.logger.error(error);
       response = {
@@ -702,7 +782,13 @@ export class ProductController {
     type: String,
     name: 'productId',
     description: 'Product Id',
-    required: true,
+    required: false,
+  })
+  @ApiQuery({
+    type: String,
+    name: 'productSlug',
+    description: 'Product Slug',
+    required: false,
   })
   @ApiResponse({ type: GetProductResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
@@ -711,7 +797,7 @@ export class ProductController {
   })
   @ApiFoundResponse({ description: 'Product fetched successfully' })
   async getProductWithCategoryPriceReviewManufacturer(
-    @Query('productId') productId: string,
+    @Query() query: { productId?: string; productSlug?: string },
     @Res() res: Response,
   ) {
     let response: GetProductResponse;
@@ -720,7 +806,8 @@ export class ProductController {
     try {
       fetchedProduct =
         await this.productService.findProductWithCategoryPriceReviewManufacturer(
-          productId,
+          query.productId,
+          query.productSlug,
         );
     } catch (error) {
       this.logger.error(error);
@@ -843,5 +930,108 @@ export class ProductController {
       data: fetchedProducts,
     };
     return res.status(HttpStatus.FOUND).json(response);
+  }
+
+  @Get('getProductWithCategoryByManufacturerIdApprovalPending')
+  @ApiQuery({
+    type: String,
+    name: 'manufacturerId',
+    description: 'Manufacturter Id',
+    required: true,
+  })
+  @ApiResponse({
+    type: GetProductWithCategoryByManufacturerIdResponse,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiFoundResponse({ description: 'Products fetched successfully' })
+  async getProductWithCategoryByManufacturerIdApprovalPending(
+    @Query('manufacturerId') manufacturerId: string,
+    @Res() res: Response,
+  ) {
+    let response: GetProductWithCategoryByManufacturerIdResponse;
+
+    let fetchedProducts: GetProductWithCategoryByManufacturerIdData;
+    try {
+      fetchedProducts =
+        await this.productService.findProductsWithCategoryByManufacturerIdApprovalPending(
+          manufacturerId,
+        );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Products fetched successfully',
+      valid: true,
+      data: fetchedProducts,
+    };
+    return res.status(HttpStatus.FOUND).json(response);
+  }
+
+  @Patch('renewTheApprovalForProduct')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('access-token')
+  @ApiBody({ type: RenewTheApprovalForProductDto })
+  @ApiResponse({ type: RenewTheApprovalForProductResponse })
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiUnprocessableEntityResponse({
+    description: 'Product Data is not processable',
+  })
+  @ApiOkResponse({ description: 'Product approval renewed' })
+  async renewTheApprovalForProduct(
+    @Req() req: { user: User },
+    @Body() body: RenewTheApprovalForProductDto,
+    @Res() res: Response,
+  ): Promise<Response<RenewTheApprovalForProductResponse>> {
+    let response: RenewTheApprovalForProductResponse;
+
+    let approvalUpdated: [number, Product[]];
+    try {
+      approvalUpdated = await this.productService.approvalRenew(
+        body.productId,
+        req.user.id,
+      );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    if (!approvalUpdated) {
+      response = {
+        message: 'Product Data is not processable',
+        valid: false,
+        error: NS_001,
+        dialog: {
+          header: 'Wrong input',
+          message: 'Product input is not processable',
+        },
+      };
+      return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(response);
+    }
+
+    response = {
+      message: 'Product approval renewed',
+      valid: true,
+    };
+    return res.status(HttpStatus.OK).json(response);
   }
 }

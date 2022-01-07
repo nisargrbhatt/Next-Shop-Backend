@@ -33,6 +33,15 @@ export class CreateProductDto {
 
   @ApiProperty({
     type: String,
+    description: 'Abstract Description of the product',
+    name: 'small_description',
+    required: true,
+  })
+  @IsNotEmpty()
+  small_description: string;
+
+  @ApiProperty({
+    type: String,
     description: 'Specifications of the product',
     name: 'specification',
     required: true,

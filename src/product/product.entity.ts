@@ -40,6 +40,12 @@ export class Product extends Model<Product> {
     type: DataType.TEXT,
     allowNull: false,
   })
+  small_description: string;
+
+  @Column({
+    type: DataType.TEXT,
+    allowNull: false,
+  })
   specification: string;
 
   @Column({

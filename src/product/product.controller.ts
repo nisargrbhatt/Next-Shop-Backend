@@ -893,6 +893,24 @@ export class ProductController {
     description: 'Manufacturter Id',
     required: true,
   })
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    description: 'Search Text',
+    required: false,
+  })
   @ApiResponse({
     type: GetProductWithCategoryByManufacturerIdResponse,
   })
@@ -900,6 +918,9 @@ export class ProductController {
   @ApiFoundResponse({ description: 'Products fetched successfully' })
   async getProductWithCategoryByManufacturerId(
     @Query('manufacturerId') manufacturerId: string,
+    @Query('currentPage') currentPage: string,
+    @Query('pageSize') pageSize: string,
+    @Query('search') search: string,
     @Res() res: Response,
   ) {
     let response: GetProductWithCategoryByManufacturerIdResponse;
@@ -909,6 +930,9 @@ export class ProductController {
       fetchedProducts =
         await this.productService.findProductsWithCategoryByManufacturerId(
           manufacturerId,
+          Number(currentPage),
+          Number(pageSize),
+          search,
         );
     } catch (error) {
       this.logger.error(error);
@@ -939,6 +963,24 @@ export class ProductController {
     description: 'Manufacturter Id',
     required: true,
   })
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    description: 'Search Text',
+    required: false,
+  })
   @ApiResponse({
     type: GetProductWithCategoryByManufacturerIdResponse,
   })
@@ -946,6 +988,9 @@ export class ProductController {
   @ApiFoundResponse({ description: 'Products fetched successfully' })
   async getProductWithCategoryByManufacturerIdApprovalPending(
     @Query('manufacturerId') manufacturerId: string,
+    @Query('currentPage') currentPage: string,
+    @Query('pageSize') pageSize: string,
+    @Query('search') search: string,
     @Res() res: Response,
   ) {
     let response: GetProductWithCategoryByManufacturerIdResponse;
@@ -955,6 +1000,9 @@ export class ProductController {
       fetchedProducts =
         await this.productService.findProductsWithCategoryByManufacturerIdApprovalPending(
           manufacturerId,
+          Number(currentPage),
+          Number(pageSize),
+          search,
         );
     } catch (error) {
       this.logger.error(error);

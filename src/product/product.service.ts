@@ -184,26 +184,82 @@ export class ProductService {
 
   async findProductsWithCategoryByManufacturerId(
     userId: string,
+    currentPage: number,
+    pageSize: number,
+    search?: string,
   ): Promise<{ count: number; rows: Product[] }> {
-    return await this.ProductRepository.findAndCountAll<Product>({
-      where: {
-        userId,
-        productApproved: true,
-      },
-      include: [{ model: Category }, { model: Image }],
-    });
+    if (search && search.length > 0) {
+      return await this.ProductRepository.findAndCountAll<Product>({
+        where: {
+          userId,
+          productApproved: true,
+          [Op.or]: [
+            {
+              name: { [Op.iRegexp]: search },
+            },
+            {
+              description: { [Op.iRegexp]: search },
+            },
+            {
+              small_description: { [Op.iRegexp]: search },
+            },
+          ],
+        },
+        include: [{ model: Category }, { model: Image }],
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
+      });
+    } else {
+      return await this.ProductRepository.findAndCountAll<Product>({
+        where: {
+          userId,
+          productApproved: true,
+        },
+        include: [{ model: Category }, { model: Image }],
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
+      });
+    }
   }
 
   async findProductsWithCategoryByManufacturerIdApprovalPending(
     userId: string,
+    currentPage: number,
+    pageSize: number,
+    search?: string,
   ): Promise<{ count: number; rows: Product[] }> {
-    return await this.ProductRepository.findAndCountAll<Product>({
-      where: {
-        userId,
-        productApproved: false,
-      },
-      include: [{ model: Category }, { model: Image }],
-    });
+    if (search && search.length > 0) {
+      return await this.ProductRepository.findAndCountAll<Product>({
+        where: {
+          userId,
+          productApproved: false,
+          [Op.or]: [
+            {
+              name: { [Op.iRegexp]: search },
+            },
+            {
+              description: { [Op.iRegexp]: search },
+            },
+            {
+              small_description: { [Op.iRegexp]: search },
+            },
+          ],
+        },
+        include: [{ model: Category }, { model: Image }],
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
+      });
+    } else {
+      return await this.ProductRepository.findAndCountAll<Product>({
+        where: {
+          userId,
+          productApproved: false,
+        },
+        include: [{ model: Category }, { model: Image }],
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
+      });
+    }
   }
 
   async findOneBySlug(slug: string): Promise<number> {

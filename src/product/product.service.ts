@@ -45,7 +45,7 @@ export class ProductService {
 
   async findByPk(id: string): Promise<Product> {
     return await this.ProductRepository.findByPk<Product>(id, {
-      include: [User],
+      include: [User, Image, Category],
     });
   }
 

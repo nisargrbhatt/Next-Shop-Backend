@@ -1,17 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
 
 export class AddImageDto {
   @ApiProperty({
     type: 'file',
     name: 'image',
     description: 'Image file',
-    required: true,
+    required: false,
     isArray: true,
     maxItems: 5,
     maxLength: 5,
   })
-  @IsNotEmpty()
+  @IsOptional()
   image: any[];
 
   @ApiProperty({

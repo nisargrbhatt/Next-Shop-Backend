@@ -81,6 +81,15 @@ export class UpdateProductDto {
 
   @ApiProperty({
     type: String,
+    description: 'Small Description of the product',
+    name: 'small_description',
+    required: false,
+  })
+  @IsOptional()
+  small_description: string;
+
+  @ApiProperty({
+    type: String,
     description: 'Specifications of the product',
     name: 'specification',
     required: false,

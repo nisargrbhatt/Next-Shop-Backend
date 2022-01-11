@@ -160,9 +160,11 @@ export class ProductService {
           },
         ],
       },
-      include: [{ model: User }, { model: Image }],
+      include: [{ model: User }, { model: Image }, { model: Category }],
       limit: pageSize,
       offset: (currentPage - 1) * pageSize,
+      col: 'id',
+      distinct: true,
     });
   }
 
@@ -296,6 +298,8 @@ export class ProductService {
       {
         decline_count: currentCount + 1,
         decline_reason: reason,
+        approval_status: true,
+        productApproved: false,
       },
       {
         where: {

@@ -135,14 +135,30 @@ export class KycService {
   // When Counts comes wrong do this {col,distinct}
   async findAllKycByMerchantManufacturerId(
     id: string,
+    currentPage?: number,
+    pageSize?: number,
   ): Promise<{ count: number; rows: KYC[] }> {
-    return await this.KYCRepository.findAndCountAll<KYC>({
-      where: {
-        userId: id,
-      },
-      include: [User, KYCImage],
-      col: 'id',
-      distinct: true,
-    });
+    if (currentPage && pageSize) {
+      return await this.KYCRepository.findAndCountAll<KYC>({
+        where: {
+          userId: id,
+        },
+        include: [User, KYCImage],
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
+        col: 'id',
+        distinct: true,
+      });
+    } else {
+      return await this.KYCRepository.findAndCountAll<KYC>({
+        where: {
+          userId: id,
+        },
+        include: [User, KYCImage],
+
+        col: 'id',
+        distinct: true,
+      });
+    }
   }
 }

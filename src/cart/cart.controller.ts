@@ -16,7 +16,6 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
-  ApiFoundResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiQuery,
@@ -223,7 +222,7 @@ export class CartController {
   @ApiBearerAuth('access-token')
   @ApiResponse({ type: GetCartResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Cart fetched successfully' })
+  @ApiOkResponse({ description: 'Cart fetched successfully' })
   async getCart(
     @Req() req: { user: User },
     @Res() res: Response,
@@ -252,6 +251,6 @@ export class CartController {
       valid: true,
       data: cartData,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 }

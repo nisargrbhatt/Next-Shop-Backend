@@ -167,7 +167,7 @@ export class AddressController {
     type: GetAddressesResponse,
   })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Addresses fetched succcessfully' })
+  @ApiOkResponse({ description: 'Addresses fetched succcessfully' })
   async getAddresses(@Req() req: { user: User }, @Res() res: Response) {
     let response: GetAddressesResponse;
 
@@ -194,7 +194,7 @@ export class AddressController {
       data: addressData,
     };
 
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getAddress')
@@ -208,7 +208,7 @@ export class AddressController {
     required: true,
   })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Address fetched succcessfully' })
+  @ApiOkResponse({ description: 'Address fetched succcessfully' })
   async getAddress(
     @Req() req: { user: User },
     @Query('addressId') addressId: string,
@@ -239,7 +239,7 @@ export class AddressController {
       data: addressData,
     };
 
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Delete('deleteAddress')

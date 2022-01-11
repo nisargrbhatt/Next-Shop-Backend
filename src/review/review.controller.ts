@@ -178,7 +178,7 @@ export class ReviewController {
   @ApiUnprocessableEntityResponse({
     description: 'Review Data is not processable',
   })
-  @ApiFoundResponse({ description: 'Review fetched successfully' })
+  @ApiOkResponse({ description: 'Review fetched successfully' })
   async getReview(
     @Req() req: { user: User },
     @Query('reviewId') reviewId: string,
@@ -220,7 +220,7 @@ export class ReviewController {
       valid: true,
       data: fetchedReview,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getReviewsByProductId')
@@ -232,7 +232,7 @@ export class ReviewController {
   })
   @ApiResponse({ type: GetReviewsByProductIdResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Reviews fetched successfully' })
+  @ApiOkResponse({ description: 'Reviews fetched successfully' })
   async getReviewsByProductId(
     @Query('productId') productId: string,
     @Res() res: Response,
@@ -261,6 +261,6 @@ export class ReviewController {
       valid: true,
       data: fetchedReviews,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 }

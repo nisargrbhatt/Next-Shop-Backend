@@ -20,7 +20,6 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
-  ApiFoundResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiQuery,
@@ -235,7 +234,7 @@ export class KYCImageController {
   })
   @ApiResponse({ type: GetImageByKycIdResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Image fetched successfuly' })
+  @ApiOkResponse({ description: 'Image fetched successfuly' })
   async getImageByKycId(
     @Query('kycId') kycId: string,
     @Res() res: Response,
@@ -264,6 +263,6 @@ export class KYCImageController {
       valid: true,
       data: fetchedImages,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 }

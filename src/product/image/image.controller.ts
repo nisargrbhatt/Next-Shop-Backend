@@ -235,7 +235,7 @@ export class ImageController {
   })
   @ApiResponse({ type: GetImageByProductIdResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Image fetched successfuly' })
+  @ApiOkResponse({ description: 'Image fetched successfuly' })
   async getImageByProductId(
     @Query('productId') productId: string,
     @Res() res: Response,
@@ -264,6 +264,6 @@ export class ImageController {
       valid: true,
       data: fetchedImages,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 }

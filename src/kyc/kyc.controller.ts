@@ -442,12 +442,27 @@ export class KycController {
   }
 
   @Get('getKYCApprovalByMerchantManufacturerId')
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
   @ApiOkResponse({ description: 'KYC Approvals fetched successfully' })
   async getKYCApprovalByMerchantManufacturerId(
     @Req() req: { user: User },
+    @Query('currentPage') currentPage: string,
+    @Query('pageSize') pageSize: string,
+
     @Res() res: Response,
   ): Promise<Response<GetKYCApprovalByMerchantManufacturerIdResponse>> {
     let response: GetKYCApprovalByMerchantManufacturerIdResponse;
@@ -455,7 +470,11 @@ export class KycController {
     let fetchedKycApprovals: GetKYCApprovalByMerchantManufacturerIdResponseData;
     try {
       fetchedKycApprovals =
-        await this.kycService.findAllKycByMerchantManufacturerId(req.user.id);
+        await this.kycService.findAllKycByMerchantManufacturerId(
+          req.user.id,
+          Number(currentPage),
+          Number(pageSize),
+        );
     } catch (error) {
       response = {
         message: 'Something went wrong',

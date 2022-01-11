@@ -304,4 +304,47 @@ export class ProductService {
       },
     );
   }
+
+  async fetchAllProductByManufacturerId(
+    id: string,
+    pageSize: number,
+    currentPage: number,
+  ): Promise<{ rows: Product[]; count: number }> {
+    return await this.ProductRepository.findAndCountAll({
+      where: {
+        userId: id,
+      },
+      include: [Image, Category],
+      limit: pageSize,
+      offset: (currentPage - 1) * pageSize,
+    });
+  }
+  async fetchAllProductByManufacturerIdSearch(
+    id: string,
+    pageSize: number,
+    currentPage: number,
+    search: string,
+  ): Promise<{ rows: Product[]; count: number }> {
+    return await this.ProductRepository.findAndCountAll({
+      where: {
+        userId: id,
+        [Op.or]: [
+          {
+            name: { [Op.iRegexp]: search },
+          },
+          {
+            description: { [Op.iRegexp]: search },
+          },
+          {
+            small_description: { [Op.iRegexp]: search },
+          },
+        ],
+      },
+      include: [Image, Category],
+      limit: pageSize,
+      offset: (currentPage - 1) * pageSize,
+      col: 'id',
+      distinct: true,
+    });
+  }
 }

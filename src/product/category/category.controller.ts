@@ -170,7 +170,7 @@ export class CategoryController {
   @Get('getAllCategories')
   @ApiResponse({ type: GetAllCategoriesResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Categories fetched successfully' })
+  @ApiOkResponse({ description: 'Categories fetched successfully' })
   async getAllCategories(@Res() res: Response) {
     let response: GetAllCategoriesResponse;
 
@@ -196,7 +196,7 @@ export class CategoryController {
       valid: true,
       data: fetchedCategories,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getCategory')
@@ -211,7 +211,7 @@ export class CategoryController {
     description: 'Category Data is not processable',
   })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Category fetched successfully' })
+  @ApiOkResponse({ description: 'Category fetched successfully' })
   async getCategory(
     @Query('categoryId') categoryId: string,
     @Res() res: Response,
@@ -253,7 +253,7 @@ export class CategoryController {
       valid: true,
       data: fetchedCategory,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getCategoryByName')
@@ -268,7 +268,7 @@ export class CategoryController {
     description: 'Category Data is not processable',
   })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Category fetched successfully' })
+  @ApiOkResponse({ description: 'Category fetched successfully' })
   async getCategoryByName(
     @Query('categoryName') categoryName: string,
     @Res() res: Response,
@@ -310,7 +310,7 @@ export class CategoryController {
       valid: true,
       data: fetchedCategory,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getCategoryById')
@@ -325,7 +325,7 @@ export class CategoryController {
     description: 'Category Data is not processable',
   })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Category fetched successfully' })
+  @ApiOkResponse({ description: 'Category fetched successfully' })
   async getCategoryById(
     @Query('categoryId') categoryId: string,
     @Res() res: Response,
@@ -367,6 +367,6 @@ export class CategoryController {
       valid: true,
       data: fetchedCategory,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 }

@@ -21,7 +21,6 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
-  ApiFoundResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiQuery,
@@ -401,7 +400,7 @@ export class KycController {
   @ApiUnprocessableEntityResponse({
     description: 'KYC Data is not processable',
   })
-  @ApiFoundResponse({ description: 'KYC Approval fetched successfully' })
+  @ApiOkResponse({ description: 'KYC Approval fetched successfully' })
   async getKycApproval(@Query('kycId') kycId: string, @Res() res: Response) {
     let response: GetKycApprovalResponse;
 
@@ -439,14 +438,14 @@ export class KycController {
       valid: true,
       data: fetchedKycApproval,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getKYCApprovalByMerchantManufacturerId')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'KYC Approvals fetched successfully' })
+  @ApiOkResponse({ description: 'KYC Approvals fetched successfully' })
   async getKYCApprovalByMerchantManufacturerId(
     @Req() req: { user: User },
     @Res() res: Response,
@@ -475,6 +474,6 @@ export class KycController {
       valid: true,
       data: fetchedKycApprovals,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 }

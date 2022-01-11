@@ -15,7 +15,6 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
-  ApiFoundResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiQuery,
@@ -180,7 +179,7 @@ export class PriceController {
   @ApiUnprocessableEntityResponse({
     description: 'Price Data is not processable',
   })
-  @ApiFoundResponse({ description: 'Price fetched successfully' })
+  @ApiOkResponse({ description: 'Price fetched successfully' })
   async getPrice(
     @Req() req: { user: User },
     @Query('priceId') priceId: string,
@@ -223,7 +222,7 @@ export class PriceController {
       valid: true,
       data: fetchedPrice,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getPricesByMerchantId')
@@ -233,7 +232,7 @@ export class PriceController {
     type: GetPricesByMerchantIdResponse,
   })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Prices fetched successfully' })
+  @ApiOkResponse({ description: 'Prices fetched successfully' })
   async getPricesByMerchantId(
     @Req() req: { user: User },
     @Res() res: Response,
@@ -262,6 +261,6 @@ export class PriceController {
       valid: true,
       data: fetchedPrices,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 }

@@ -217,7 +217,7 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiResponse({ type: GetUserResponse })
-  @ApiFoundResponse({ description: 'User fetched successfully' })
+  @ApiOkResponse({ description: 'User fetched successfully' })
   async getUser(
     @Req() req: { user: User },
     @Res() res: Response,
@@ -229,7 +229,7 @@ export class UserController {
       valid: true,
       data: fetchedUser,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getEmailOtp')

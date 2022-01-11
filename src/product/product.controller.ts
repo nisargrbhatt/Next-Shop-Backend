@@ -51,6 +51,7 @@ import {
 import {
   ApproveProductResponse,
   CreateProductResponse,
+  GetAllProductsByManufacturerIdResponse,
   GetApprovalRequiredProductData,
   GetApprovalRequiredProductResponse,
   GetProductResponse,
@@ -492,7 +493,7 @@ export class ProductController {
   @Get('getApprovalRequiredProduct')
   @ApiResponse({ type: GetApprovalRequiredProductResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Products fetched successfully' })
+  @ApiOkResponse({ description: 'Products fetched successfully' })
   async getApprovalRequiredProduct(@Res() res: Response) {
     let response: GetApprovalRequiredProductResponse;
 
@@ -533,7 +534,7 @@ export class ProductController {
   @ApiUnprocessableEntityResponse({
     description: 'Product Data is not processable',
   })
-  @ApiFoundResponse({ description: 'Product fetched successfully' })
+  @ApiOkResponse({ description: 'Product fetched successfully' })
   async getProduct(
     @Query('productId') productId: string,
     @Res() res: Response,
@@ -575,7 +576,7 @@ export class ProductController {
       valid: true,
       data: fetchedProduct,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getProductWithCategory')
@@ -596,7 +597,7 @@ export class ProductController {
   @ApiUnprocessableEntityResponse({
     description: 'Product Data is not processable',
   })
-  @ApiFoundResponse({ description: 'Product fetched successfully' })
+  @ApiOkResponse({ description: 'Product fetched successfully' })
   async getProductWithCategory(
     @Query() query: { productId?: string; productSlug?: string },
     @Res() res: Response,
@@ -662,7 +663,7 @@ export class ProductController {
   @ApiUnprocessableEntityResponse({
     description: 'Product Data is not processable',
   })
-  @ApiFoundResponse({ description: 'Product fetched successfully' })
+  @ApiOkResponse({ description: 'Product fetched successfully' })
   async getProductWithCategoryPrice(
     @Query() query: { productId?: string; productSlug?: string },
     @Res() res: Response,
@@ -728,7 +729,7 @@ export class ProductController {
   @ApiUnprocessableEntityResponse({
     description: 'Product Data is not processable',
   })
-  @ApiFoundResponse({ description: 'Product fetched successfully' })
+  @ApiOkResponse({ description: 'Product fetched successfully' })
   async getProductWithCategoryPriceReview(
     @Query() query: { productId?: string; productSlug?: string },
     @Res() res: Response,
@@ -795,7 +796,7 @@ export class ProductController {
   @ApiUnprocessableEntityResponse({
     description: 'Product Data is not processable',
   })
-  @ApiFoundResponse({ description: 'Product fetched successfully' })
+  @ApiOkResponse({ description: 'Product fetched successfully' })
   async getProductWithCategoryPriceReviewManufacturer(
     @Query() query: { productId?: string; productSlug?: string },
     @Res() res: Response,
@@ -853,7 +854,7 @@ export class ProductController {
   })
   @ApiResponse({ type: GetProductWithCategoryBySearchResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Products fetched successfully' })
+  @ApiOkResponse({ description: 'Products fetched successfully' })
   async getProductWithCategoryBySearch(
     @Query('search') search: string,
     @Res() res: Response,
@@ -915,7 +916,7 @@ export class ProductController {
     type: GetProductWithCategoryByManufacturerIdResponse,
   })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Products fetched successfully' })
+  @ApiOkResponse({ description: 'Products fetched successfully' })
   async getProductWithCategoryByManufacturerId(
     @Query('manufacturerId') manufacturerId: string,
     @Query('currentPage') currentPage: string,
@@ -985,7 +986,7 @@ export class ProductController {
     type: GetProductWithCategoryByManufacturerIdResponse,
   })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
-  @ApiFoundResponse({ description: 'Products fetched successfully' })
+  @ApiOkResponse({ description: 'Products fetched successfully' })
   async getProductWithCategoryByManufacturerIdApprovalPending(
     @Query('manufacturerId') manufacturerId: string,
     @Query('currentPage') currentPage: string,
@@ -1081,5 +1082,100 @@ export class ProductController {
       valid: true,
     };
     return res.status(HttpStatus.OK).json(response);
+  }
+
+  @Get('getAllProductsByManufacturerId')
+  @ApiQuery({
+    type: String,
+    name: 'manufacturerId',
+    description: 'Manufacturter Id',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
+  async getAllProductsByManufacturerId(
+    @Query()
+    query: { manufacturerId: string; currentPage: string; pageSize: string },
+    @Res() res: Response,
+  ) {
+    let response: GetAllProductsByManufacturerIdResponse;
+
+    let fetchedProducts: { rows: Product[]; count: number };
+
+    fetchedProducts = await this.productService.fetchAllProductByManufacturerId(
+      query.manufacturerId,
+      Number(query.pageSize),
+      Number(query.currentPage),
+    );
+    response = {
+      message: 'Product fetched Successfully',
+      valid: true,
+      data: fetchedProducts,
+    };
+    res.status(200).json(response);
+  }
+
+  @Get('getAllProductWithSearchByManufacturerId')
+  @ApiQuery({
+    type: String,
+    name: 'manufacturerId',
+    description: 'Manufacturter Id',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    description: 'Search Text',
+    required: true,
+  })
+  async getAllProductWithSearchByManufacturerId(
+    @Query()
+    query: {
+      manufacturerId: string;
+      currentPage: string;
+      pageSize: string;
+      search: string;
+    },
+    @Res() res: Response,
+  ) {
+    let response: GetAllProductsByManufacturerIdResponse;
+
+    let fetchedProducts: { rows: Product[]; count: number };
+
+    fetchedProducts =
+      await this.productService.fetchAllProductByManufacturerIdSearch(
+        query.manufacturerId,
+        Number(query.pageSize),
+        Number(query.currentPage),
+        query.search,
+      );
+    response = {
+      message: 'Product fetched Successfully',
+      valid: true,
+      data: fetchedProducts,
+    };
+    res.status(200).json(response);
   }
 }

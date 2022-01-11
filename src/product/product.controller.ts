@@ -21,7 +21,6 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
-  ApiFoundResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiQuery,
@@ -491,15 +490,42 @@ export class ProductController {
   }
 
   @Get('getApprovalRequiredProduct')
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    description: 'Search Text',
+    required: false,
+  })
   @ApiResponse({ type: GetApprovalRequiredProductResponse })
   @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
   @ApiOkResponse({ description: 'Products fetched successfully' })
-  async getApprovalRequiredProduct(@Res() res: Response) {
+  async getApprovalRequiredProduct(
+    @Query('currentPage') currentPage: string,
+    @Query('pageSize') pageSize: string,
+    @Query('search') search: string,
+    @Res() res: Response,
+  ) {
     let response: GetApprovalRequiredProductResponse;
 
     let fetchedProduct: GetApprovalRequiredProductData;
     try {
-      fetchedProduct = await this.productService.findProductRequiredApproval();
+      fetchedProduct = await this.productService.findProductRequiredApproval(
+        Number(currentPage),
+        Number(pageSize),
+        search,
+      );
     } catch (error) {
       this.logger.error(error);
       response = {
@@ -519,7 +545,7 @@ export class ProductController {
       valid: true,
       data: fetchedProduct,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getProduct')
@@ -642,7 +668,7 @@ export class ProductController {
       valid: true,
       data: fetchedProduct,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getProductWithCategoryPrice')
@@ -708,7 +734,7 @@ export class ProductController {
       valid: true,
       data: fetchedProduct,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getProductWithCategoryPriceReview')
@@ -775,7 +801,7 @@ export class ProductController {
       valid: true,
       data: fetchedProduct,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getProductWithCategoryPriceReviewManufacturer')
@@ -842,7 +868,7 @@ export class ProductController {
       valid: true,
       data: fetchedProduct,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getProductWithCategoryBySearch')
@@ -884,7 +910,7 @@ export class ProductController {
       valid: true,
       data: fetchedProducts,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getProductWithCategoryByManufacturerId')
@@ -954,7 +980,7 @@ export class ProductController {
       valid: true,
       data: fetchedProducts,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('getProductWithCategoryByManufacturerIdApprovalPending')
@@ -1024,7 +1050,7 @@ export class ProductController {
       valid: true,
       data: fetchedProducts,
     };
-    return res.status(HttpStatus.FOUND).json(response);
+    return res.status(HttpStatus.OK).json(response);
   }
 
   @Patch('renewTheApprovalForProduct')

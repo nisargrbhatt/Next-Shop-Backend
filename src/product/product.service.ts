@@ -136,15 +136,33 @@ export class ProductService {
     }
   }
 
-  async findProductRequiredApproval(): Promise<{
+  async findProductRequiredApproval(
+    currentPage: number,
+    pageSize: number,
+    search?: string,
+  ): Promise<{
     count: number;
     rows: Product[];
   }> {
     return await this.ProductRepository.findAndCountAll<Product>({
       where: {
         approval_status: false,
+        [Op.or]: [
+          {
+            name: {
+              [Op.iRegexp]: search,
+            },
+          },
+          {
+            description: {
+              [Op.iRegexp]: search,
+            },
+          },
+        ],
       },
       include: [{ model: User }, { model: Image }],
+      limit: pageSize,
+      offset: (currentPage - 1) * pageSize,
     });
   }
 
@@ -167,14 +185,13 @@ export class ProductService {
         productApproved: true,
         [Op.or]: [
           {
-            name: {
-              [Op.iRegexp]: search,
-            },
+            name: { [Op.iRegexp]: search },
           },
           {
-            description: {
-              [Op.iRegexp]: search,
-            },
+            description: { [Op.iRegexp]: search },
+          },
+          {
+            small_description: { [Op.iRegexp]: search },
           },
         ],
       },

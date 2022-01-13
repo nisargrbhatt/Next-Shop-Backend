@@ -3,6 +3,7 @@ import { Category } from './category.entity';
 import { CATEGORY_REPOSITORY } from 'src/core/constants/constants';
 import { createCategoryData } from './dto/param.interface';
 import { Product } from '../product.entity';
+import { Image } from '../image/image.entity';
 
 @Injectable()
 export class CategoryService {
@@ -47,7 +48,25 @@ export class CategoryService {
       where: {
         id,
       },
-      include: [{ model: Product }],
+      include: [{ model: Product, include: [Image] }],
+    });
+  }
+
+  async findAllCategoriesWithFiveProducts(): Promise<{
+    count: number;
+    rows: Category[];
+  }> {
+    return await this.CategoryRepository.findAndCountAll<Category>({
+      include: [
+        {
+          model: Product,
+          limit: 5,
+          include: [Image, Category],
+          where: { productApproved: true },
+        },
+      ],
+      col: 'id',
+      distinct: true,
     });
   }
 }

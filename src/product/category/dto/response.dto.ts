@@ -155,3 +155,28 @@ export class GetCategoryByIdResponse {
   })
   data?: Category;
 }
+
+export class GetAllCategoriesWithFiveProductsResponse {
+  @ApiResponseProperty({ type: String })
+  message: string;
+
+  @ApiResponseProperty({ type: Boolean, example: 'true/false' })
+  valid: boolean;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "code:'Error code',message:'Error message'",
+  })
+  error?: errorData;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "header:'Dialog header',message:'Dialog message'",
+  })
+  dialog?: dialogData;
+
+  @ApiResponseProperty({
+    type: Object,
+  })
+  data?: GetAllCategoriesData;
+}

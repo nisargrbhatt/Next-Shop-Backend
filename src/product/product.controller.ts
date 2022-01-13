@@ -50,7 +50,10 @@ import {
 import {
   ApproveProductResponse,
   CreateProductResponse,
+  GetAllProductLookaheadWithCategoryImageBySearchResponse,
   GetAllProductsByManufacturerIdResponse,
+  GetAllProductWithCategoryImageByCategoryIdResponse,
+  GetAllProductWithCategoryImageBySearchResponse,
   GetApprovalRequiredProductData,
   GetApprovalRequiredProductResponse,
   GetProductResponse,
@@ -1176,6 +1179,9 @@ export class ProductController {
     description: 'Search Text',
     required: true,
   })
+  @ApiResponse({ type: GetAllProductsByManufacturerIdResponse })
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiOkResponse({ description: 'Product fetched Successfully' })
   async getAllProductWithSearchByManufacturerId(
     @Query()
     query: {
@@ -1190,15 +1196,216 @@ export class ProductController {
 
     let fetchedProducts: { rows: Product[]; count: number };
 
-    fetchedProducts =
-      await this.productService.fetchAllProductByManufacturerIdSearch(
-        query.manufacturerId,
-        Number(query.pageSize),
-        Number(query.currentPage),
-        query.search,
-      );
+    try {
+      fetchedProducts =
+        await this.productService.fetchAllProductByManufacturerIdSearch(
+          query.manufacturerId,
+          Number(query.pageSize),
+          Number(query.currentPage),
+          query.search,
+        );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
     response = {
       message: 'Product fetched Successfully',
+      valid: true,
+      data: fetchedProducts,
+    };
+    res.status(200).json(response);
+  }
+
+  @Get('getAllProductWithCategoryImageByCategoryId')
+  @ApiQuery({
+    type: String,
+    name: 'categoryId',
+    description: 'Category Id',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    description: 'Search Text',
+    required: true,
+  })
+  @ApiResponse({ type: GetAllProductWithCategoryImageByCategoryIdResponse })
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiOkResponse({ description: 'Product fetched Successfully' })
+  async getAllProductWithCategoryImageByCategoryId(
+    @Query()
+    query: {
+      categoryId: string;
+      currentPage: string;
+      pageSize: string;
+      search: string;
+    },
+    @Res() res: Response,
+  ) {
+    let response: GetAllProductsByManufacturerIdResponse;
+
+    let fetchedProducts: { rows: Product[]; count: number };
+
+    try {
+      fetchedProducts =
+        await this.productService.fetchAllProductWithCategoryImageByCategoryId(
+          query.categoryId,
+          Number(query.pageSize),
+          Number(query.currentPage),
+          query.search,
+        );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Product fetched Successfully',
+      valid: true,
+      data: fetchedProducts,
+    };
+    res.status(200).json(response);
+  }
+
+  @Get('getAllProductWithCategoryImageBySearch')
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    description: 'Search Text',
+    required: true,
+  })
+  @ApiResponse({ type: GetAllProductWithCategoryImageBySearchResponse })
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiOkResponse({ description: 'Product fetched Successfully' })
+  async getAllProductWithCategoryImageBySearch(
+    @Query()
+    query: {
+      currentPage: string;
+      pageSize: string;
+      search: string;
+    },
+    @Res() res: Response,
+  ) {
+    let response: GetAllProductWithCategoryImageBySearchResponse;
+
+    let fetchedProducts: { rows: Product[]; count: number };
+
+    try {
+      fetchedProducts =
+        await this.productService.fetchAllProductWithCategoryImageBySearch(
+          Number(query.pageSize),
+          Number(query.currentPage),
+          query.search,
+        );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Product fetched Successfully',
+      valid: true,
+      data: fetchedProducts,
+    };
+    res.status(200).json(response);
+  }
+
+  @Get('getAllProductLookaheadWithCategoryImageBySearch')
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    description: 'Search Text',
+    required: true,
+  })
+  @ApiResponse({
+    type: GetAllProductLookaheadWithCategoryImageBySearchResponse,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiOkResponse({ description: 'Product lookahead fetched Successfully' })
+  async getAllProductLookaheadWithCategoryImageBySearch(
+    @Query()
+    query: {
+      search: string;
+    },
+    @Res() res: Response,
+  ) {
+    let response: GetAllProductLookaheadWithCategoryImageBySearchResponse;
+
+    let fetchedProducts: { rows: Product[]; count: number };
+
+    try {
+      fetchedProducts =
+        await this.productService.fetchAllProductLookaheadWithCategoryImageBySearch(
+          query.search,
+        );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Product lookahead fetched Successfully',
       valid: true,
       data: fetchedProducts,
     };

@@ -368,4 +368,85 @@ export class ProductService {
       distinct: true,
     });
   }
+
+  async fetchAllProductWithCategoryImageByCategoryId(
+    id: string,
+    pageSize: number,
+    currentPage: number,
+    search: string,
+  ): Promise<{ rows: Product[]; count: number }> {
+    return await this.ProductRepository.findAndCountAll<Product>({
+      where: {
+        categoryId: id,
+        productApproved: true,
+        [Op.or]: [
+          {
+            name: { [Op.iRegexp]: search },
+          },
+          {
+            description: { [Op.iRegexp]: search },
+          },
+          {
+            small_description: { [Op.iRegexp]: search },
+          },
+        ],
+      },
+      include: [Image, Category],
+      limit: pageSize,
+      offset: (currentPage - 1) * pageSize,
+      col: 'id',
+      distinct: true,
+    });
+  }
+
+  async fetchAllProductWithCategoryImageBySearch(
+    pageSize: number,
+    currentPage: number,
+    search: string,
+  ): Promise<{ rows: Product[]; count: number }> {
+    return await this.ProductRepository.findAndCountAll<Product>({
+      where: {
+        productApproved: true,
+        [Op.or]: [
+          {
+            name: { [Op.iRegexp]: search },
+          },
+          {
+            description: { [Op.iRegexp]: search },
+          },
+          {
+            small_description: { [Op.iRegexp]: search },
+          },
+        ],
+      },
+      include: [Image, Category],
+      limit: pageSize,
+      offset: (currentPage - 1) * pageSize,
+      col: 'id',
+      distinct: true,
+    });
+  }
+
+  async fetchAllProductLookaheadWithCategoryImageBySearch(
+    search: string,
+  ): Promise<{ rows: Product[]; count: number }> {
+    return await this.ProductRepository.findAndCountAll<Product>({
+      where: {
+        productApproved: true,
+        [Op.or]: [
+          {
+            name: { [Op.iRegexp]: search },
+          },
+        ],
+      },
+      include: [
+        { model: Image, attributes: ['url'], limit: 1 },
+        { model: Category, attributes: ['name'] },
+      ],
+      attributes: ['name'],
+      limit: 5,
+      col: 'id',
+      distinct: true,
+    });
+  }
 }

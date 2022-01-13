@@ -37,6 +37,7 @@ import {
   AddCategoryResponse,
   GetAllCategoriesData,
   GetAllCategoriesResponse,
+  GetAllCategoriesWithFiveProductsResponse,
   GetCategoryByIdResponse,
   GetCategoryByNameResponse,
   GetCategoryResponse,
@@ -366,6 +367,39 @@ export class CategoryController {
       message: 'Category fetched successfully',
       valid: true,
       data: fetchedCategory,
+    };
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  @Get('getAllCategoriesWithFiveProducts')
+  @ApiResponse({ type: GetAllCategoriesWithFiveProductsResponse })
+  @ApiInternalServerErrorResponse({ description: 'Something went wrong' })
+  @ApiOkResponse({ description: 'Categories fetched successfully' })
+  async getAllCategoriesWithFiveProducts(@Res() res: Response) {
+    let response: GetAllCategoriesWithFiveProductsResponse;
+
+    let fetchedCategories: GetAllCategoriesData;
+    try {
+      fetchedCategories =
+        await this.categoryService.findAllCategoriesWithFiveProducts();
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Categories fetched successfully',
+      valid: true,
+      data: fetchedCategories,
     };
     return res.status(HttpStatus.OK).json(response);
   }

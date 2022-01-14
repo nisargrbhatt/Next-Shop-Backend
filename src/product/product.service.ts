@@ -117,7 +117,7 @@ export class ProductService {
         include: [
           { model: Category },
           { model: Price, include: [User] },
-          { model: Review },
+          { model: Review, include: [User] },
           { model: User },
           { model: Image },
         ],

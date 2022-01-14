@@ -116,7 +116,7 @@ export class ProductService {
         where: { id, productApproved: true },
         include: [
           { model: Category },
-          { model: Price },
+          { model: Price, include: [User] },
           { model: Review },
           { model: User },
           { model: Image },

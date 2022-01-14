@@ -1,5 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PRICE_REPOSITORY } from 'src/core/constants/constants';
+import { Image } from 'src/product/image/image.entity';
+import { Product } from 'src/product/product.entity';
 import { createPriceData } from './dto/param.interface';
 import { Price } from './price.entity';
 
@@ -49,11 +51,23 @@ export class PriceService {
 
   async findByMerchantId(
     merchantId: string,
+    pageSize: number,
+    currentPage: number,
   ): Promise<{ count: number; rows: Price[] }> {
     return await this.PriceRepository.findAndCountAll<Price>({
       where: {
         merchantId,
       },
+      include: [
+        {
+          model: Product,
+          include: [Image],
+        },
+      ],
+      limit: pageSize,
+      offset: (currentPage - 1) * pageSize,
+      col: 'id',
+      distinct: true,
     });
   }
 }

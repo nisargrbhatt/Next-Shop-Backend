@@ -226,6 +226,18 @@ export class PriceController {
   }
 
   @Get('getPricesByMerchantId')
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   @ApiResponse({
@@ -235,13 +247,22 @@ export class PriceController {
   @ApiOkResponse({ description: 'Prices fetched successfully' })
   async getPricesByMerchantId(
     @Req() req: { user: User },
+    @Query()
+    query: {
+      currentPage: string;
+      pageSize: string;
+    },
     @Res() res: Response,
   ) {
     let response: GetPricesByMerchantIdResponse;
 
     let fetchedPrices: GetPricesByMerchantIdData;
     try {
-      fetchedPrices = await this.priceService.findByMerchantId(req.user.id);
+      fetchedPrices = await this.priceService.findByMerchantId(
+        req.user.id,
+        Number(query.pageSize),
+        Number(query.currentPage),
+      );
     } catch (error) {
       this.logger.error(error);
       response = {

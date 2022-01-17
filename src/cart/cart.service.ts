@@ -1,7 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CART_REPOSITORY } from 'src/core/constants/constants';
 import { Price } from 'src/price/price.entity';
+import { Category } from 'src/product/category/category.entity';
+import { Image } from 'src/product/image/image.entity';
 import { Product } from 'src/product/product.entity';
+import { User } from 'src/user/user.entity';
 import { Cart } from './cart.entity';
 import { createCartData } from './dto/param.interface';
 
@@ -37,7 +40,13 @@ export class CartService {
       where: {
         userId,
       },
-      include: [{ model: Price }, { model: Product }],
+      include: [
+        { model: Price, include: [{ model: User }] },
+        {
+          model: Product,
+          include: [{ model: Image, limit: 1 }, { model: Category }],
+        },
+      ],
     });
   }
 

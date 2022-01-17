@@ -1,5 +1,5 @@
 import { Address } from './../../user/addresses/address.entity';
-import { Sequelize } from 'sequelize-typescript';
+import { Sequelize, SequelizeOptions } from 'sequelize-typescript';
 import { User } from 'src/user/user.entity';
 import { databaseConfig } from './database.config';
 import { DatabaseConfigAttributes } from './dbconfig.interface';
@@ -17,6 +17,7 @@ export const databaseProvider = [
     provide: 'SEQUELIZE',
     useFactory: async (): Promise<Sequelize> => {
       let config: DatabaseConfigAttributes;
+      let configProd: SequelizeOptions;
 
       switch (process.env.NODE_ENV) {
         case process.env.DEVELOPMENT:
@@ -26,12 +27,19 @@ export const databaseProvider = [
           config = databaseConfig.test;
           break;
         case process.env.PRODUCTION:
-          config = databaseConfig.production;
+          configProd = databaseConfig.production;
           break;
         default:
           config = databaseConfig.development;
       }
-      const sequelize = new Sequelize(config.urlDatabase, { logging: false });
+      let sequelize: Sequelize;
+      if (process.env.NODE_ENV == process.env.PRODUCTION) {
+        sequelize = new Sequelize(configProd);
+      } else {
+        sequelize = new Sequelize(config.urlDatabase, {
+          logging: false,
+        });
+      }
 
       sequelize.addModels([
         User,

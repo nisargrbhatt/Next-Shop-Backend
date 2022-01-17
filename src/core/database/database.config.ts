@@ -10,6 +10,20 @@ export const databaseConfig: DatabaseConfig = {
     urlDatabase: process.env.TEST_DATABASE_URL,
   },
   production: {
-    urlDatabase: process.env.PRODUCTION_DATABASE_URL,
+    // uri: process.env.PRODUCTION_DATABASE_URL,
+    host: process.env.PRODUCTION_DATABASE_HOST,
+    database: process.env.PRODUCTION_DATABASE_NAME,
+    username: process.env.PRODUCTION_DATABASE_USER,
+    port: Number(process.env.PRODUCTION_DATABASE_PORT),
+    password: process.env.PRODUCTION_DATABASE_PASSWORD,
+    logging: false,
+    protocol: 'postgres',
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
   },
 };

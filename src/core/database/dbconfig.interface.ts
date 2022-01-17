@@ -1,3 +1,5 @@
+import { SequelizeOptions } from 'sequelize-typescript';
+
 export interface DatabaseConfigAttributes {
   urlDatabase?: string;
 }
@@ -5,5 +7,5 @@ export interface DatabaseConfigAttributes {
 export interface DatabaseConfig {
   development: DatabaseConfigAttributes;
   test: DatabaseConfigAttributes;
-  production: DatabaseConfigAttributes;
+  production: SequelizeOptions;
 }

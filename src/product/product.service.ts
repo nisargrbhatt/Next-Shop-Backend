@@ -127,8 +127,8 @@ export class ProductService {
         where: { slug, productApproved: true },
         include: [
           { model: Category },
-          { model: Price },
-          { model: Review },
+          { model: Price, include: [User] },
+          { model: Review, include: [User] },
           { model: User },
           { model: Image },
         ],

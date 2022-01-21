@@ -3,9 +3,11 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
+import { Order } from 'src/transaction/order/order.entity';
 import { User } from '../user.entity';
 
 @Table({})
@@ -69,4 +71,7 @@ export class Address extends Model<Address> {
 
   @BelongsTo(() => User)
   user: User;
+
+  @HasMany(() => Order)
+  orders: Order[];
 }

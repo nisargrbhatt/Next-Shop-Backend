@@ -38,3 +38,7 @@ export const NS_010 = {
   code: 'NS_010',
   message: 'User is not verified',
 };
+export const NS_011 = {
+  code: 'NS_011',
+  message: 'Razorpay API has some error',
+};

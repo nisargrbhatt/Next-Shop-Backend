@@ -450,40 +450,40 @@ export class ProductController {
           return res.status(HttpStatus.UNAUTHORIZED).json(response);
         }
       }
+      if (fetchedProduct.user.email_verified) {
+        let emailSent: { mail: any; error: boolean };
+        try {
+          emailSent = await this.sharedService.sendProductRejectMail(
+            fetchedProduct.user.email,
+            body.declineReason,
+          );
+        } catch (error) {
+          this.logger.error(error);
+          response = {
+            message: 'Something went wrong',
+            valid: false,
+            error: NS_002,
+            dialog: {
+              header: 'Server error',
+              message: 'There is some error in server. Please try again later',
+            },
+          };
+          return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+        }
 
-      let emailSent: { mail: any; error: boolean };
-      try {
-        emailSent = await this.sharedService.sendProductRejectMail(
-          fetchedProduct.user.email,
-          body.declineReason,
-        );
-      } catch (error) {
-        this.logger.error(error);
-        response = {
-          message: 'Something went wrong',
-          valid: false,
-          error: NS_002,
-          dialog: {
-            header: 'Server error',
-            message: 'There is some error in server. Please try again later',
-          },
-        };
-        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+        if (emailSent.error) {
+          response = {
+            message: 'Something went wrong',
+            valid: false,
+            error: NS_006,
+            dialog: {
+              header: 'Server error',
+              message: 'There is some error in server. Please try again later',
+            },
+          };
+          return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+        }
       }
-
-      if (emailSent.error) {
-        response = {
-          message: 'Something went wrong',
-          valid: false,
-          error: NS_006,
-          dialog: {
-            header: 'Server error',
-            message: 'There is some error in server. Please try again later',
-          },
-        };
-        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
-      }
-
       response = {
         message: 'Product declined successfully',
         valid: true,

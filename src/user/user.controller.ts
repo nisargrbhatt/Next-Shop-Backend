@@ -51,6 +51,11 @@ import {
 } from 'src/core/constants/error_codes';
 import { SharedService } from 'src/shared/shared.service';
 import { ConfigService } from '@nestjs/config';
+import {
+  CreateCustomerData,
+  CreatedCustomerData,
+} from 'src/transaction/dto/param.interface';
+import { TransactionService } from 'src/transaction/transaction.service';
 
 @Controller('user')
 @ApiTags('User')
@@ -61,6 +66,7 @@ export class UserController {
     private readonly userService: UserService,
     private readonly sharedService: SharedService,
     private readonly configService: ConfigService,
+    private readonly transactionService: TransactionService,
   ) {}
 
   // @Post('createUser')
@@ -526,6 +532,40 @@ export class UserController {
 
       this.logger.log(`${createdUser.name} is Signed Up.`);
 
+      if (body['role'] === 'Customer') {
+        const createRazorUser: CreateCustomerData = {
+          fail_existing: 0,
+          name: body.name,
+          email: body.email_verified ? body.email : null,
+          notes: {
+            userId: createdUser.id,
+          },
+        };
+
+        let createdRazorUser: CreatedCustomerData;
+        try {
+          createdRazorUser = await this.transactionService.createCustomer(
+            createRazorUser,
+          );
+        } catch (error) {
+          this.logger.warn('Razor User Building failed');
+          this.logger.error(error);
+        }
+
+        if (createdRazorUser) {
+          try {
+            await this.userService.update(
+              {
+                rp_customer_id: createdRazorUser.id,
+              },
+              createdUser.id,
+            );
+          } catch (error) {
+            this.logger.warn('Razor User Binding failed');
+            this.logger.error(error);
+          }
+        }
+      }
       const responseData: OAuthCallData = {
         role: createdUser.role,
         access: this.configService.get(

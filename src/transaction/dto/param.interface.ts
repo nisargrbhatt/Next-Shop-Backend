@@ -14,14 +14,13 @@ export interface Notes {
 
 export interface CreatedCustomerData {
   id: string;
-  entity: string;
-  name: string;
+  entity?: string;
+  name?: string;
   contact?: number;
   email?: string;
   gstin?: string;
-
-  notes: Notes;
-  created_at: number;
+  notes?: Notes;
+  created_at?: number;
 }
 
 export interface EditCustomerData {
@@ -37,7 +36,7 @@ export interface CreateOrderData {
   receipt: string;
   notes: Notes;
   customer_id?: string;
-  partial_payment: boolean;
+  partial_payment?: boolean;
 }
 
 export interface CreatedOrderData {

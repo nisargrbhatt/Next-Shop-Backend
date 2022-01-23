@@ -1,9 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
   HttpStatus,
   Logger,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -14,6 +17,7 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
+  ApiQuery,
   ApiResponse,
   ApiTags,
   ApiUnprocessableEntityResponse,
@@ -32,8 +36,10 @@ import { TransactionService } from '../transaction.service';
 import { CreateServerOrderData } from './dto/param.interface';
 import { CreateSingleProductOrderDto } from './dto/request.dto';
 import {
+  CancelOrderResponse,
   CreateSingleProductOrderResponse,
   CreateSingleProductOrderResponseData,
+  GetOrderPrefillsResponse,
 } from './dto/response.dto';
 import { Order } from './order.entity';
 import { OrderService } from './order.service';
@@ -185,7 +191,6 @@ export class OrderController {
       currency: 'INR',
       receipt: this.transactionService.randomRecieptId(),
       customer_id: req.user.rp_customer_id,
-      partial_payment: false,
       notes: {
         product_name: fetchedProduct.name,
         quantity: body.quantity,
@@ -283,13 +288,123 @@ export class OrderController {
       },
       notes: razorpayCreatedOrder.notes,
     };
+
+    //* Step 7: Update the prefill in Server Order
+    try {
+      await this.orderService.update(
+        {
+          rp_prefill_data: JSON.stringify(responseData),
+        },
+        createdServerOrder.id,
+      );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
     response = {
       message: 'Order Created successfully',
       valid: true,
-      data: responseData,
+      data: {
+        order_id: createdServerOrder.id,
+      },
     };
 
     //* Step 7: Send the response
     return res.status(HttpStatus.CREATED).json(response);
+  }
+
+  @Get('getOrderPrefills')
+  @ApiQuery({
+    name: 'orderId',
+    type: String,
+    description: 'Order Id',
+    required: true,
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('access-token')
+  @ApiResponse({ type: GetOrderPrefillsResponse })
+  async getOrderPrefills(
+    @Req() req: { user: User },
+    @Query('orderId') orderId: string,
+    @Res() res: Response,
+  ) {
+    let response: GetOrderPrefillsResponse;
+
+    let fetchedOrder: Order;
+    try {
+      fetchedOrder = await this.orderService.findByPk(orderId);
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    const responseData: CreateSingleProductOrderResponseData = {
+      ...JSON.parse(fetchedOrder.rp_prefill_data),
+    };
+    response = {
+      message: 'Order Prefill fetched successfully',
+      valid: true,
+      data: responseData,
+    };
+    return res.status(200).json(response);
+  }
+
+  @Delete('cancelOrder')
+  @ApiQuery({
+    type: String,
+    name: 'orderId',
+    description: 'Order Id',
+    required: true,
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('access-token')
+  @ApiResponse({ type: CancelOrderResponse })
+  async cancelOrder(
+    @Req() req: { user: User },
+    @Query('orderId') orderId: string,
+    @Res() res: Response,
+  ) {
+    let response: CancelOrderResponse;
+
+    try {
+      await this.orderService.delete(orderId, req.user.id);
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Order cancelled successfully',
+      valid: true,
+    };
+    return res.status(HttpStatus.OK).json(response);
   }
 }

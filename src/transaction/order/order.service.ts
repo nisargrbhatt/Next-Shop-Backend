@@ -34,4 +34,11 @@ export class OrderService {
       },
     });
   }
+
+  async delete(id: string, userId: string): Promise<number> {
+    return await this.OrderRepository.destroy<Order>({
+      where: { id, userId },
+      truncate: true,
+    });
+  }
 }

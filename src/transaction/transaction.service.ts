@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import * as Razorpay from 'razorpay';
+import * as hmacSHA256 from 'crypto-js/hmac-sha256';
+
 import {
   CapturedPayment,
   CreateCustomerData,
@@ -42,11 +44,26 @@ export class TransactionService {
     return `NS-RP-Recipt-${Date.now()}`;
   }
 
+  checkSignature(
+    rp_order_id: string,
+    rp_payment_id: string,
+    rp_signature: string,
+  ): boolean {
+    const generatedSignature = hmacSHA256(
+      rp_order_id + '|' + rp_payment_id,
+      this.configService.get('RAZORPAY_KEYSECRET'),
+    ).toString();
+    if (generatedSignature === rp_signature) {
+      return true;
+    }
+    return false;
+  }
+
   //*-------------- Customer -------------*//
   async createCustomer(
     createCustomerData: CreateCustomerData,
   ): Promise<CreatedCustomerData> {
-    return await this.rpInstance.customer.create(createCustomerData);
+    return await this.rpInstance.customers.create(createCustomerData);
   }
 
   async editCustomer(

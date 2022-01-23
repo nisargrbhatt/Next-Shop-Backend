@@ -51,6 +51,13 @@ export class Order extends Model<Order> {
   })
   quantity: number;
 
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+    comment: 'RP Options JSON Data',
+  })
+  rp_prefill_data: string;
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.TEXT,

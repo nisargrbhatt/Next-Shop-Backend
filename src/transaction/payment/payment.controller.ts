@@ -1,11 +1,9 @@
 import {
   Body,
   Controller,
-  Get,
   HttpStatus,
   Logger,
   Post,
-  Query,
   Req,
   Res,
   UseGuards,
@@ -13,7 +11,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { query, Response } from 'express';
+import { Response } from 'express';
 import { NS_001, NS_002, NS_005 } from 'src/core/constants/error_codes';
 import { User } from 'src/user/user.entity';
 import { Order } from '../order/order.entity';
@@ -182,7 +180,7 @@ export class PaymentController {
 
     if (fetchedOrder) {
       const verifySignature: boolean = this.transactionService.checkSignature(
-        body.razorpay_order_id,
+        fetchedOrder.rp_order_id,
         body.razorpay_payment_id,
         body.razorpay_signature,
       );

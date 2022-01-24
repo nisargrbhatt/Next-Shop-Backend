@@ -1,4 +1,5 @@
 import { ApiResponseProperty } from '@nestjs/swagger';
+import { Order } from '../order.entity';
 
 export interface errorData {
   code: string;
@@ -42,6 +43,11 @@ export class CreateSingleProductOrderResponseData {
 
   @ApiResponseProperty({ type: Object })
   notes: Notes;
+}
+
+export interface GetAllOrdersByUserIdResponseData {
+  count: number;
+  rows: Order[];
 }
 
 export class CreateSingleProductOrderResponse {
@@ -112,4 +118,29 @@ export class CancelOrderResponse {
     example: "header:'Dialog header',message:'Dialog message'",
   })
   dialog?: dialogData;
+}
+
+export class GetAllOrdersByUserIdResponse {
+  @ApiResponseProperty({ type: String })
+  message: string;
+
+  @ApiResponseProperty({ type: Boolean, example: 'true/false' })
+  valid: boolean;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "code:'Error code',message:'Error message'",
+  })
+  error?: errorData;
+
+  @ApiResponseProperty({
+    type: 'object',
+    example: "header:'Dialog header',message:'Dialog message'",
+  })
+  dialog?: dialogData;
+
+  @ApiResponseProperty({
+    type: Object,
+  })
+  data?: GetAllOrdersByUserIdResponseData;
 }

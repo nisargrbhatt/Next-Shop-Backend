@@ -39,6 +39,8 @@ import {
   CancelOrderResponse,
   CreateSingleProductOrderResponse,
   CreateSingleProductOrderResponseData,
+  GetAllOrdersByUserIdResponse,
+  GetAllOrdersByUserIdResponseData,
   GetOrderPrefillsResponse,
 } from './dto/response.dto';
 import { Order } from './order.entity';
@@ -405,6 +407,59 @@ export class OrderController {
       message: 'Order cancelled successfully',
       valid: true,
     };
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  @Get('getAllOrdersByUserId')
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('access-token')
+  @ApiResponse({ type: GetAllOrdersByUserIdResponse })
+  async getAllOrdersByUserId(
+    @Req() req: { user: User },
+    @Query() query: { currentPage: string; pageSize: string },
+    @Res() res: Response,
+  ) {
+    let response: GetAllOrdersByUserIdResponse;
+
+    let fetchedOrders: GetAllOrdersByUserIdResponseData;
+    try {
+      fetchedOrders = await this.orderService.findByUserId(
+        req.user.id,
+        Number(query.currentPage),
+        Number(query.pageSize),
+      );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Orders fetched successfully',
+      valid: true,
+      data: fetchedOrders,
+    };
+
     return res.status(HttpStatus.OK).json(response);
   }
 }

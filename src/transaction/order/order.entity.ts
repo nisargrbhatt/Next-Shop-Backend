@@ -98,7 +98,7 @@ export class Order extends Model<Order> {
   })
   merchantId: string;
 
-  @BelongsTo(() => User, 'userId')
+  @BelongsTo(() => User, { foreignKey: 'userId', as: 'user' })
   user: User;
 
   @BelongsTo(() => Address)
@@ -107,6 +107,12 @@ export class Order extends Model<Order> {
   @BelongsTo(() => Price)
   price: Price;
 
-  @BelongsTo(() => User, 'merchantId')
+  @BelongsTo(() => Product)
+  product: Product;
+
+  @BelongsTo(() => User, {
+    foreignKey: 'merchantId',
+    as: 'merchant',
+  })
   merchant: User;
 }

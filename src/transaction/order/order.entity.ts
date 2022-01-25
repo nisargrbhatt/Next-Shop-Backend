@@ -38,7 +38,7 @@ export class Order extends Model<Order> {
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
-    comment: 'Order Status - 0=Not Done, 1=Done',
+    comment: 'Order Payment Status - 0=Not Done, 1=Done',
     defaultValue: false,
   })
   order_status: boolean;
@@ -57,6 +57,30 @@ export class Order extends Model<Order> {
     comment: 'RP Options JSON Data',
   })
   rp_prefill_data: string;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: true,
+    comment: 'Delivery Status',
+    defaultValue: false,
+  })
+  delivery_status: boolean;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: true,
+    comment: 'Refund Status',
+    defaultValue: false,
+  })
+  refund_status: boolean;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: true,
+    comment: 'Order Cancelled',
+    defaultValue: false,
+  })
+  order_cancel: boolean;
 
   @ForeignKey(() => User)
   @Column({

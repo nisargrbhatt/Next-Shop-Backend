@@ -69,4 +69,12 @@ export class OrderService {
       truncate: true,
     });
   }
+
+  async findByOrderPending(): Promise<Order[]> {
+    return await this.OrderRepository.findAll<Order>({
+      where: {
+        order_status: false,
+      },
+    });
+  }
 }

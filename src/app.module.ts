@@ -15,6 +15,8 @@ import { UserModule } from './user/user.module';
 import { SharedService } from './shared/shared.service';
 import { KycModule } from './kyc/kyc.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronModule } from './cron/cron.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { TransactionModule } from './transaction/transaction.module';
     CacheModule.register(),
     KycModule,
     TransactionModule,
+    ScheduleModule.forRoot(),
+    CronModule,
   ],
   controllers: [AppController],
   providers: [AppService, SharedService, ...AppProviders],

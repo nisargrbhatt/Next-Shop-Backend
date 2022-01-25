@@ -8,6 +8,7 @@ import {
   CapturedPayment,
   CreateCustomerData,
   CreatedCustomerData,
+  CreatedNormalRefund,
   CreatedOrderData,
   CreateOrderData,
   EditCustomerData,
@@ -57,6 +58,13 @@ export class TransactionService {
       return true;
     }
     return false;
+  }
+
+  generateSignature(rp_order_id: string, rp_payment_id: string): string {
+    return hmacSHA256(
+      rp_order_id + '|' + rp_payment_id,
+      this.configService.get('RAZORPAY_KEYSECRET'),
+    ).toString();
   }
 
   //*-------------- Customer -------------*//
@@ -136,5 +144,16 @@ export class TransactionService {
 
   async fetchPayment(paymentId: string): Promise<CapturedPayment> {
     return await this.rpInstance.payments.fetch(paymentId);
+  }
+
+  //*--------------- Refund ---------------*//
+  async createNormalRefund(
+    paymentId: string,
+    amount: number,
+  ): Promise<CreatedNormalRefund> {
+    return await this.rpInstance.payments.refund(paymentId, {
+      amount: amount,
+      speed: 'normal',
+    });
   }
 }

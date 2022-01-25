@@ -135,3 +135,22 @@ export interface FetchedAllPayments {
   count: number;
   items: CapturedPayment[];
 }
+
+export interface CreatedNormalRefund {
+  id: string;
+  entity: string;
+  amount: number;
+  receipt?: string;
+  currency: string;
+  payment_id: string;
+  notes: Notes;
+  acquirer_data: AcquirerData;
+  created_at: number;
+  batch_id?: string;
+  status: string;
+  speed_processed: string;
+}
+
+export interface AcquirerData {
+  [key: string]: any;
+}

@@ -2,6 +2,7 @@ import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { Cart } from 'src/cart/cart.entity';
 import { Product } from 'src/product/product.entity';
 import { Review } from 'src/review/review.entity';
+import { Order } from 'src/transaction/order/order.entity';
 import { Address } from './addresses/address.entity';
 
 @Table({})
@@ -71,6 +72,13 @@ export class User extends Model<User> {
   })
   merchant_or_manufacturer_verified: boolean;
 
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+    comment: 'Razorpay Customer Id',
+  })
+  rp_customer_id: string;
+
   @HasMany(() => Address)
   addresses: Address[];
 
@@ -83,10 +91,17 @@ export class User extends Model<User> {
   @HasMany(() => Review)
   reviewes: Review[];
 
+  @HasMany(() => Order, 'userId')
+  orders: Order[];
+
+  @HasMany(() => Order, 'merchantId')
+  merchantOrders: Order[];
+
   toJSON() {
     return {
       ...this.get(),
       email_otp: undefined,
+      email_otp_sent_time: undefined,
     };
   }
 }

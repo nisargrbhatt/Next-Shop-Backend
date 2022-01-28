@@ -19,7 +19,6 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
-  ApiFoundResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiQuery,

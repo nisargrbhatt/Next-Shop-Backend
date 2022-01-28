@@ -11,6 +11,8 @@ import { Review } from 'src/review/review.entity';
 import { Image } from 'src/product/image/image.entity';
 import { KYC } from 'src/kyc/kyc.entity';
 import { KYCImage } from 'src/kyc/kyc-image/kyc-image.entity';
+import { Order } from 'src/transaction/order/order.entity';
+import { Payment } from 'src/transaction/payment/payment.entity';
 
 export const databaseProvider = [
   {
@@ -52,9 +54,14 @@ export const databaseProvider = [
         Image,
         KYC,
         KYCImage,
+        Order,
+        Payment,
       ]);
 
-      await sequelize.sync();
+      await sequelize.sync(); //* Production
+      // await sequelize.sync({ force: true }); //* Test
+      // await sequelize.sync({logging:true,benchmark:true}) //* Development
+
       return sequelize;
     },
   },

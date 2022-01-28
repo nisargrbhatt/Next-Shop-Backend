@@ -29,7 +29,7 @@ import {
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { Response, Express } from 'express';
+import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import {
   NS_001,
@@ -120,7 +120,8 @@ export class ProductController {
     // Product Slig Creation
     let adder = '';
     let productSlug: string;
-    while (true) {
+    let whileConst = true;
+    while (whileConst) {
       productSlug = slugify.default(body.name + adder);
 
       const productSlugCount = await this.productService.findOneBySlug(
@@ -128,6 +129,7 @@ export class ProductController {
       );
 
       if (productSlugCount < 1) {
+        whileConst = false;
         break;
       }
       adder += '1';
@@ -450,40 +452,40 @@ export class ProductController {
           return res.status(HttpStatus.UNAUTHORIZED).json(response);
         }
       }
+      if (fetchedProduct.user.email_verified) {
+        let emailSent: { mail: any; error: boolean };
+        try {
+          emailSent = await this.sharedService.sendProductRejectMail(
+            fetchedProduct.user.email,
+            body.declineReason,
+          );
+        } catch (error) {
+          this.logger.error(error);
+          response = {
+            message: 'Something went wrong',
+            valid: false,
+            error: NS_002,
+            dialog: {
+              header: 'Server error',
+              message: 'There is some error in server. Please try again later',
+            },
+          };
+          return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+        }
 
-      let emailSent: { mail: any; error: boolean };
-      try {
-        emailSent = await this.sharedService.sendProductRejectMail(
-          fetchedProduct.user.email,
-          body.declineReason,
-        );
-      } catch (error) {
-        this.logger.error(error);
-        response = {
-          message: 'Something went wrong',
-          valid: false,
-          error: NS_002,
-          dialog: {
-            header: 'Server error',
-            message: 'There is some error in server. Please try again later',
-          },
-        };
-        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+        if (emailSent.error) {
+          response = {
+            message: 'Something went wrong',
+            valid: false,
+            error: NS_006,
+            dialog: {
+              header: 'Server error',
+              message: 'There is some error in server. Please try again later',
+            },
+          };
+          return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+        }
       }
-
-      if (emailSent.error) {
-        response = {
-          message: 'Something went wrong',
-          valid: false,
-          error: NS_006,
-          dialog: {
-            header: 'Server error',
-            message: 'There is some error in server. Please try again later',
-          },
-        };
-        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
-      }
-
       response = {
         message: 'Product declined successfully',
         valid: true,
@@ -1140,12 +1142,26 @@ export class ProductController {
     let response: GetAllProductsByManufacturerIdResponse;
 
     let fetchedProducts: { rows: Product[]; count: number };
-
-    fetchedProducts = await this.productService.fetchAllProductByManufacturerId(
-      query.manufacturerId,
-      Number(query.pageSize),
-      Number(query.currentPage),
-    );
+    try {
+      fetchedProducts =
+        await this.productService.fetchAllProductByManufacturerId(
+          query.manufacturerId,
+          Number(query.pageSize),
+          Number(query.currentPage),
+        );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
     response = {
       message: 'Product fetched Successfully',
       valid: true,

@@ -15,7 +15,6 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
-  ApiFoundResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiQuery,

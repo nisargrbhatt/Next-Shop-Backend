@@ -10,6 +10,7 @@ import {
 import { Cart } from 'src/cart/cart.entity';
 import { Price } from 'src/price/price.entity';
 import { Review } from 'src/review/review.entity';
+import { Order } from 'src/transaction/order/order.entity';
 import { User } from 'src/user/user.entity';
 import { Category } from './category/category.entity';
 import { Image } from './image/image.entity';
@@ -119,4 +120,7 @@ export class Product extends Model<Product> {
 
   @HasMany(() => Image)
   images: Image[];
+
+  @HasMany(() => Order)
+  orders: Order[];
 }

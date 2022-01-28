@@ -58,7 +58,10 @@ export const databaseProvider = [
         Payment,
       ]);
 
-      await sequelize.sync();
+      await sequelize.sync(); //* Production
+      // await sequelize.sync({ force: true }); //* Test
+      // await sequelize.sync({logging:true,benchmark:true}) //* Development
+
       return sequelize;
     },
   },

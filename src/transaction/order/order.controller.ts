@@ -17,6 +17,7 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
+  ApiOperation,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -31,17 +32,26 @@ import { ProductService } from 'src/product/product.service';
 import { Address } from 'src/user/addresses/address.entity';
 import { AddressService } from 'src/user/addresses/address.service';
 import { User } from 'src/user/user.entity';
-import { CreatedOrderData, CreateOrderData } from '../dto/param.interface';
+import {
+  CreatedNormalRefund,
+  CreatedOrderData,
+  CreateOrderData,
+} from '../dto/param.interface';
 import { TransactionService } from '../transaction.service';
 import { CreateServerOrderData } from './dto/param.interface';
-import { CreateSingleProductOrderDto } from './dto/request.dto';
+import {
+  CreateSingleProductOrderDto,
+  OrderDecisionByMerchantDto,
+} from './dto/request.dto';
 import {
   CancelOrderResponse,
   CreateSingleProductOrderResponse,
   CreateSingleProductOrderResponseData,
+  GetAllMerchantDecisionPendingOrderResponse,
   GetAllOrdersByUserIdResponse,
   GetAllOrdersByUserIdResponseData,
   GetOrderPrefillsResponse,
+  OrderDecisionByMerchantResponse,
 } from './dto/response.dto';
 import { Order } from './order.entity';
 import { OrderService } from './order.service';
@@ -243,6 +253,7 @@ export class OrderController {
       productId: body.productId,
       rp_customer_id: req.user.rp_customer_id,
       rp_order_id: razorpayCreatedOrder.id,
+      amount: finalPrice,
     };
 
     let createdServerOrder: Order;
@@ -370,6 +381,10 @@ export class OrderController {
     return res.status(200).json(response);
   }
 
+  @ApiOperation({
+    summary: 'If User wants to cancel the order',
+    description: 'It will cancel the order and starts the refund process',
+  })
   @Delete('cancelOrder')
   @ApiQuery({
     type: String,
@@ -387,8 +402,76 @@ export class OrderController {
   ) {
     let response: CancelOrderResponse;
 
+    let fetchedOrder: Order;
     try {
-      await this.orderService.delete(orderId, req.user.id);
+      fetchedOrder = await this.orderService.findByPk(orderId);
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    if (!fetchedOrder) {
+      response = {
+        message: 'Order Data is not processable',
+        valid: false,
+        error: NS_001,
+        dialog: {
+          header: 'Wrong input',
+          message: 'Order inputs is not processable',
+        },
+      };
+      return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(response);
+    }
+
+    let createdNormalRefund: CreatedNormalRefund;
+    try {
+      createdNormalRefund = await this.transactionService.createNormalRefund(
+        fetchedOrder.payment[0].rp_payment_id,
+        fetchedOrder.amount,
+      );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    if (!createdNormalRefund) {
+      this.logger.error('Refund cannot be created');
+      response = {
+        message: 'Order Data is not processable',
+        valid: false,
+        error: NS_001,
+        dialog: {
+          header: 'Wrong input',
+          message: 'Order inputs is not processable',
+        },
+      };
+      return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(response);
+    }
+
+    try {
+      await this.orderService.deleteByUser(
+        orderId,
+        req.user.id,
+        createdNormalRefund.id,
+      );
     } catch (error) {
       this.logger.error(error);
       response = {
@@ -410,6 +493,7 @@ export class OrderController {
     return res.status(HttpStatus.OK).json(response);
   }
 
+  @ApiOperation({ summary: 'Get All Orders By User Id' })
   @Get('getAllOrdersByUserId')
   @ApiQuery({
     name: 'currentPage',
@@ -460,6 +544,192 @@ export class OrderController {
       data: fetchedOrders,
     };
 
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  @Post('orderDecisionByMerchant')
+  @ApiOperation({ summary: "Merchant's decision on order" })
+  @ApiBody({ type: OrderDecisionByMerchantDto })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('access-token')
+  @ApiResponse({ type: OrderDecisionByMerchantResponse })
+  async orderDecisionByMerchant(
+    @Req() req: { user: User },
+    @Body() body: OrderDecisionByMerchantDto,
+    @Res() res: Response,
+  ) {
+    let response: OrderDecisionByMerchantResponse;
+
+    let fetchedOrder: Order;
+    try {
+      fetchedOrder = await this.orderService.findByPk(body.orderId);
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    if (!fetchedOrder) {
+      response = {
+        message: 'Order Data is not processable',
+        valid: false,
+        error: NS_001,
+        dialog: {
+          header: 'Wrong input',
+          message: 'Order inputs is not processable',
+        },
+      };
+      return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(response);
+    }
+
+    if (body.decision) {
+      try {
+        await this.orderService.update(
+          {
+            order_decision_status: true,
+            order_decision: true,
+          },
+          fetchedOrder.id,
+        );
+      } catch (error) {
+        this.logger.error(error);
+        response = {
+          message: 'Something went wrong',
+          valid: false,
+          error: NS_002,
+          dialog: {
+            header: 'Server error',
+            message: 'There is some error in server. Please try again later',
+          },
+        };
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+      }
+    } else {
+      let createdNormalRefund: CreatedNormalRefund;
+      try {
+        createdNormalRefund = await this.transactionService.createNormalRefund(
+          fetchedOrder.payment[0].rp_payment_id,
+          fetchedOrder.amount,
+        );
+      } catch (error) {
+        this.logger.error(error);
+        response = {
+          message: 'Something went wrong',
+          valid: false,
+          error: NS_002,
+          dialog: {
+            header: 'Server error',
+            message: 'There is some error in server. Please try again later',
+          },
+        };
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+      }
+
+      if (!createdNormalRefund) {
+        this.logger.error('Refund cannot be created');
+        response = {
+          message: 'Order Data is not processable',
+          valid: false,
+          error: NS_001,
+          dialog: {
+            header: 'Wrong input',
+            message: 'Order inputs is not processable',
+          },
+        };
+        return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(response);
+      }
+
+      try {
+        await this.orderService.update(
+          {
+            order_decision_status: true,
+            order_decision: false,
+            refund_status: true,
+            order_cancel: true,
+            rp_refund_id: createdNormalRefund.id,
+          },
+          fetchedOrder.id,
+        );
+      } catch (error) {
+        this.logger.error(error);
+        response = {
+          message: 'Something went wrong',
+          valid: false,
+          error: NS_002,
+          dialog: {
+            header: 'Server error',
+            message: 'There is some error in server. Please try again later',
+          },
+        };
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+      }
+    }
+
+    response = {
+      message: 'Order updated successfully',
+      valid: true,
+    };
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  @Get('getAllMerchantDecisionPendingOrder')
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('access-token')
+  @ApiResponse({ type: GetAllMerchantDecisionPendingOrderResponse })
+  async getAllMerchantDecisionPendingOrder(
+    @Req() req: { user: User },
+    @Query('currentPage') currentPage: string,
+    @Query('pageSize') pageSize: string,
+    @Res() res: Response,
+  ) {
+    let response: GetAllMerchantDecisionPendingOrderResponse;
+
+    let fetchedOrders: { count: number; rows: Order[] };
+    try {
+      fetchedOrders = await this.orderService.findMerchantDecisionPending(
+        Number(currentPage),
+        Number(pageSize),
+        req.user.id,
+      );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Orders fetched successfully',
+      valid: true,
+      data: fetchedOrders,
+    };
     return res.status(HttpStatus.OK).json(response);
   }
 }

@@ -35,3 +35,21 @@ export class CreateSingleProductOrderDto {
   })
   quantity: number;
 }
+
+export class OrderDecisionByMerchantDto {
+  @ApiProperty({
+    type: String,
+    description: 'Order Id',
+    name: 'orderId',
+    required: true,
+  })
+  orderId: string;
+
+  @ApiProperty({
+    type: Boolean,
+    description: 'Order decision',
+    name: 'decision',
+    required: true,
+  })
+  decision: boolean;
+}

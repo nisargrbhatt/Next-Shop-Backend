@@ -47,7 +47,7 @@ export class PaymentController {
   ) {
     let response: PaymentDoneResponse;
 
-    let fetchedOrder: Order;
+    let fetchedOrder: Order[];
     try {
       fetchedOrder = await this.orderService.findByRpOrderId(body.rp_order_id);
     } catch (error) {
@@ -76,82 +76,83 @@ export class PaymentController {
       };
       return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(response);
     }
-
-    const verifySignature: boolean = this.transactionService.checkSignature(
-      body.rp_order_id,
-      body.rp_payment_id,
-      body.rp_signature,
-    );
-    if (!verifySignature) {
-      response = {
-        message: 'Bad Request',
-        valid: false,
-        error: NS_005,
-        dialog: {
-          header: 'Bad API Body',
-          message: 'Bad Request to server',
-        },
-      };
-      return res.status(HttpStatus.BAD_REQUEST).json(response);
-    }
-
-    const createPaymentData: CreatePaymentData = {
-      orderId: fetchedOrder.id,
-      rp_order_id: body.rp_order_id,
-      rp_payment_id: body.rp_payment_id,
-      rp_signature: body.rp_signature,
-    };
-    let createdPayment: Payment;
-    try {
-      createdPayment = await this.paymentService.create(createPaymentData);
-    } catch (error) {
-      this.logger.error(error);
-      response = {
-        message: 'Something went wrong',
-        valid: false,
-        error: NS_002,
-        dialog: {
-          header: 'Server error',
-          message: 'There is some error in server. Please try again later',
-        },
-      };
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
-    }
-
-    if (!createdPayment) {
-      response = {
-        message: 'Payment Data is not processable',
-        valid: false,
-        error: NS_001,
-        dialog: {
-          header: 'Wrong input',
-          message: 'Payment input is not processable',
-        },
-      };
-      return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(response);
-    }
-
-    try {
-      await this.orderService.update(
-        {
-          order_status: true,
-        },
-        fetchedOrder.id,
+    for (let i = 0; i < fetchedOrder.length; i++) {
+      const currentOrder: Order = fetchedOrder[i];
+      const verifySignature: boolean = this.transactionService.checkSignature(
+        currentOrder.rp_order_id,
+        body.rp_payment_id,
+        body.rp_signature,
       );
-    } catch (error) {
-      this.logger.error(error);
-      response = {
-        message: 'Something went wrong',
-        valid: false,
-        error: NS_002,
-        dialog: {
-          header: 'Server error',
-          message: 'There is some error in server. Please try again later',
-        },
-      };
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
-    }
+      if (!verifySignature) {
+        response = {
+          message: 'Bad Request',
+          valid: false,
+          error: NS_005,
+          dialog: {
+            header: 'Bad API Body',
+            message: 'Bad Request to server',
+          },
+        };
+        return res.status(HttpStatus.BAD_REQUEST).json(response);
+      }
 
+      const createPaymentData: CreatePaymentData = {
+        orderId: currentOrder.id,
+        rp_order_id: body.rp_order_id,
+        rp_payment_id: body.rp_payment_id,
+        rp_signature: body.rp_signature,
+      };
+      let createdPayment: Payment;
+      try {
+        createdPayment = await this.paymentService.create(createPaymentData);
+      } catch (error) {
+        this.logger.error(error);
+        response = {
+          message: 'Something went wrong',
+          valid: false,
+          error: NS_002,
+          dialog: {
+            header: 'Server error',
+            message: 'There is some error in server. Please try again later',
+          },
+        };
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+      }
+
+      if (!createdPayment) {
+        response = {
+          message: 'Payment Data is not processable',
+          valid: false,
+          error: NS_001,
+          dialog: {
+            header: 'Wrong input',
+            message: 'Payment input is not processable',
+          },
+        };
+        return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(response);
+      }
+
+      try {
+        await this.orderService.update(
+          {
+            order_status: true,
+          },
+          currentOrder.id,
+        );
+      } catch (error) {
+        this.logger.error(error);
+        response = {
+          message: 'Something went wrong',
+          valid: false,
+          error: NS_002,
+          dialog: {
+            header: 'Server error',
+            message: 'There is some error in server. Please try again later',
+          },
+        };
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+      }
+    }
     response = {
       message: 'Order placed Successfully',
       valid: true,
@@ -169,7 +170,7 @@ export class PaymentController {
     },
     @Res() res: Response,
   ) {
-    let fetchedOrder: Order;
+    let fetchedOrder: Order[];
     try {
       fetchedOrder = await this.orderService.findByRpOrderId(
         body.razorpay_order_id,
@@ -179,35 +180,40 @@ export class PaymentController {
     }
 
     if (fetchedOrder) {
-      const verifySignature: boolean = this.transactionService.checkSignature(
-        fetchedOrder.rp_order_id,
-        body.razorpay_payment_id,
-        body.razorpay_signature,
-      );
-      if (verifySignature) {
-        const createPaymentData: CreatePaymentData = {
-          orderId: fetchedOrder.id,
-          rp_order_id: body.razorpay_order_id,
-          rp_payment_id: body.razorpay_payment_id,
-          rp_signature: body.razorpay_signature,
-        };
-        let createdPayment: Payment;
-        try {
-          createdPayment = await this.paymentService.create(createPaymentData);
-        } catch (error) {
-          this.logger.error(error);
-        }
-
-        if (createdPayment) {
+      for (let i = 0; i < fetchedOrder.length; i++) {
+        const currentOrder: Order = fetchedOrder[i];
+        const verifySignature: boolean = this.transactionService.checkSignature(
+          currentOrder.rp_order_id,
+          body.razorpay_payment_id,
+          body.razorpay_signature,
+        );
+        if (verifySignature) {
+          const createPaymentData: CreatePaymentData = {
+            orderId: currentOrder.id,
+            rp_order_id: body.razorpay_order_id,
+            rp_payment_id: body.razorpay_payment_id,
+            rp_signature: body.razorpay_signature,
+          };
+          let createdPayment: Payment;
           try {
-            await this.orderService.update(
-              {
-                order_status: true,
-              },
-              fetchedOrder.id,
+            createdPayment = await this.paymentService.create(
+              createPaymentData,
             );
           } catch (error) {
             this.logger.error(error);
+          }
+
+          if (createdPayment) {
+            try {
+              await this.orderService.update(
+                {
+                  order_status: true,
+                },
+                currentOrder.id,
+              );
+            } catch (error) {
+              this.logger.error(error);
+            }
           }
         }
       }

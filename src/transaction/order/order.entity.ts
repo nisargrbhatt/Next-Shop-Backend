@@ -3,6 +3,7 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -10,6 +11,7 @@ import { Price } from 'src/price/price.entity';
 import { Product } from 'src/product/product.entity';
 import { Address } from 'src/user/addresses/address.entity';
 import { User } from 'src/user/user.entity';
+import { Payment } from '../payment/payment.entity';
 
 @Table({})
 export class Order extends Model<Order> {
@@ -60,11 +62,34 @@ export class Order extends Model<Order> {
 
   @Column({
     type: DataType.BOOLEAN,
+    allowNull: false,
+    comment: 'Merchant have taken Decision or not',
+    defaultValue: false,
+  })
+  order_decision_status: boolean;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: true,
+    comment: "Merchant's Decision",
+  })
+  order_decision: boolean;
+
+  @Column({
+    type: DataType.BOOLEAN,
     allowNull: true,
     comment: 'Delivery Status',
     defaultValue: false,
   })
   delivery_status: boolean;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: true,
+    comment: 'Order Cancelled',
+    defaultValue: false,
+  })
+  order_cancel: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
@@ -75,12 +100,18 @@ export class Order extends Model<Order> {
   refund_status: boolean;
 
   @Column({
-    type: DataType.BOOLEAN,
+    type: DataType.TEXT,
     allowNull: true,
-    comment: 'Order Cancelled',
-    defaultValue: false,
+    comment: 'Razorpay Refund Id',
   })
-  order_cancel: boolean;
+  rp_refund_id: string;
+
+  @Column({
+    type: DataType.DOUBLE,
+    allowNull: true,
+    comment: 'Final amount',
+  })
+  amount: number;
 
   @ForeignKey(() => User)
   @Column({
@@ -139,4 +170,7 @@ export class Order extends Model<Order> {
     as: 'merchant',
   })
   merchant: User;
+
+  @HasMany(() => Payment)
+  payment: Payment[];
 }

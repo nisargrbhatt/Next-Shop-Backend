@@ -12,9 +12,11 @@ import {
   CreatedOrderData,
   CreateOrderData,
   EditCustomerData,
+  FetchedAllCustomers,
   FetchedAllOrdersData,
   FetchedAllPayments,
   FetchedAllPaymentsOfOrderData,
+  FetchedRefund,
 } from './dto/param.interface';
 
 @Injectable()
@@ -82,9 +84,9 @@ export class TransactionService {
   }
 
   async fetchAllCustomers(
-    currentPage: number,
-    pageSize: number,
-  ): Promise<void> {
+    currentPage?: number,
+    pageSize?: number,
+  ): Promise<FetchedAllCustomers> {
     return await this.rpInstance.customers.all({
       count: pageSize,
       skip: (currentPage - 1) * pageSize,
@@ -103,8 +105,8 @@ export class TransactionService {
   }
 
   async fetchAllOrders(
-    currentPage: number,
-    pageSize: number,
+    currentPage?: number,
+    pageSize?: number,
   ): Promise<FetchedAllOrdersData> {
     return await this.rpInstance.orders.all({
       count: pageSize,
@@ -133,8 +135,8 @@ export class TransactionService {
   }
 
   async fetchAllPayments(
-    currentPage: number,
-    pageSize: number,
+    currentPage?: number,
+    pageSize?: number,
   ): Promise<FetchedAllPayments> {
     return await this.rpInstance.payments.all({
       count: pageSize,
@@ -155,5 +157,9 @@ export class TransactionService {
       amount: amount,
       speed: 'normal',
     });
+  }
+
+  async fetchRefund(refundId: string): Promise<FetchedRefund> {
+    return await this.rpInstance.refunds.fetch(refundId);
   }
 }

@@ -31,7 +31,7 @@ export class OrderService {
 
   async findByPk(id: string): Promise<Order> {
     return await this.OrderRepository.findByPk<Order>(id, {
-      include: [{ model: Payment }],
+      include: [{ model: Payment }, { model: Price }],
     });
   }
 
@@ -118,6 +118,75 @@ export class OrderService {
       offset: (currentPage - 1) * pageSize,
       col: 'id',
       distinct: true,
+    });
+  }
+
+  async findMerchantDecisionAccepted(
+    currentPage: number,
+    pageSize: number,
+    merchantId: string,
+  ): Promise<{
+    count: number;
+    rows: Order[];
+  }> {
+    return await this.OrderRepository.findAndCountAll<Order>({
+      where: {
+        order_status: true,
+        order_decision_status: true,
+        order_decision: true,
+        order_cancel: false,
+        merchantId: merchantId,
+      },
+      include: [
+        { model: Product, include: [{ model: Image, limit: 1 }] },
+        { model: Address },
+        { model: Price },
+        { model: User, as: 'user' },
+      ],
+      limit: pageSize,
+      offset: (currentPage - 1) * pageSize,
+      col: 'id',
+      distinct: true,
+    });
+  }
+
+  async findMerchantDecisionRejected(
+    currentPage: number,
+    pageSize: number,
+    merchantId: string,
+  ): Promise<{
+    count: number;
+    rows: Order[];
+  }> {
+    return await this.OrderRepository.findAndCountAll<Order>({
+      where: {
+        order_status: true,
+        order_decision_status: true,
+        order_decision: false,
+        order_cancel: false,
+        merchantId: merchantId,
+      },
+      include: [
+        { model: Product, include: [{ model: Image, limit: 1 }] },
+        { model: Address },
+        { model: Price },
+        { model: User, as: 'user' },
+      ],
+      limit: pageSize,
+      offset: (currentPage - 1) * pageSize,
+      col: 'id',
+      distinct: true,
+    });
+  }
+
+  async findOrderByIdWithData(id: string): Promise<Order> {
+    return await this.OrderRepository.findByPk<Order>(id, {
+      include: [
+        { model: Product, include: [{ model: Image, limit: 1 }] },
+        { model: Address },
+        { model: Price },
+        { model: User, as: 'user' },
+      ],
     });
   }
 }

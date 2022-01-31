@@ -8,12 +8,13 @@ import { OrderController } from './order/order.controller';
 import { OrderService } from './order/order.service';
 import { PaymentController } from './payment/payment.controller';
 import { PaymentService } from './payment/payment.service';
+import { TransactionController } from './transaction.controller';
 import { TransactionProviders } from './transaction.provider';
 import { TransactionService } from './transaction.service';
 
 @Module({
   imports: [AuthModule, ConfigModule],
-  controllers: [OrderController, PaymentController],
+  controllers: [TransactionController, OrderController, PaymentController],
   providers: [
     OrderService,
     PaymentService,

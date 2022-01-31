@@ -23,6 +23,23 @@ export interface CreatedCustomerData {
   created_at?: number;
 }
 
+export interface FetchedAllCustomers {
+  entity: string;
+  count: number;
+  items: Item[];
+}
+
+export interface Item {
+  id: string;
+  entity: string;
+  name: string;
+  email?: string;
+  contact?: string;
+  gstin?: string;
+  notes?: Notes;
+  created_at?: number;
+}
+
 export interface EditCustomerData {
   email?: string;
   name?: string;
@@ -136,6 +153,8 @@ export interface FetchedAllPayments {
   items: CapturedPayment[];
 }
 
+//*--------------- Refund ---------------*//
+
 export interface CreatedNormalRefund {
   id: string;
   entity: string;
@@ -153,4 +172,20 @@ export interface CreatedNormalRefund {
 
 export interface AcquirerData {
   [key: string]: any;
+}
+
+export interface FetchedRefund {
+  id: string;
+  entity: string;
+  amount: number;
+  currency: string;
+  payment_id: string;
+  notes: Notes;
+  receipt: null;
+  acquirer_data: AcquirerData;
+  created_at: number;
+  batch_id: null;
+  status: string;
+  speed_processed: string;
+  speed_requested: string;
 }

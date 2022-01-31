@@ -510,6 +510,7 @@ export class UserController {
       const createUserData: oAuthCallData = {
         ...body,
         id: body['sub'] + '|' + body['role'],
+        name: body.name.includes('@') ? body.name.split('@')[0] : body.name,
       };
 
       let createdUser: User;
@@ -534,7 +535,7 @@ export class UserController {
       if (body['role'] === 'Customer') {
         const createRazorUser: CreateCustomerData = {
           fail_existing: 0,
-          name: body.name,
+          name: body.name.includes('@') ? body.name.split('@')[0] : body.name,
           email: body.email_verified ? body.email : null,
           notes: {
             userId: createdUser.id,

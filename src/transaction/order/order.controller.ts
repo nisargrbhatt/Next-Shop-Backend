@@ -51,6 +51,7 @@ import {
   GetAllOrdersByUserIdResponse,
   GetAllOrdersByUserIdResponseData,
   GetOrderPrefillsResponse,
+  GetOrderResponse,
   OrderDecisionByMerchantResponse,
 } from './dto/response.dto';
 import { Order } from './order.entity';
@@ -486,6 +487,8 @@ export class OrderController {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
     }
 
+    //! Cancel/Refund Email should be sent
+
     response = {
       message: 'Order cancelled successfully',
       valid: true,
@@ -612,6 +615,28 @@ export class OrderController {
         };
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
       }
+
+      try {
+        await this.priceService.update(
+          {
+            stock: fetchedOrder.price.stock - fetchedOrder.quantity,
+          },
+          fetchedOrder.price.id,
+          req.user.id,
+        );
+      } catch (error) {
+        this.logger.error(error);
+        response = {
+          message: 'Something went wrong',
+          valid: false,
+          error: NS_002,
+          dialog: {
+            header: 'Server error',
+            message: 'There is some error in server. Please try again later',
+          },
+        };
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+      }
     } else {
       let createdNormalRefund: CreatedNormalRefund;
       try {
@@ -653,7 +678,6 @@ export class OrderController {
             order_decision_status: true,
             order_decision: false,
             refund_status: true,
-            order_cancel: true,
             rp_refund_id: createdNormalRefund.id,
           },
           fetchedOrder.id,
@@ -729,6 +753,158 @@ export class OrderController {
       message: 'Orders fetched successfully',
       valid: true,
       data: fetchedOrders,
+    };
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  @Get('getAllMerchantDecisionAcceptedOrder')
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('access-token')
+  @ApiResponse({ type: GetAllMerchantDecisionPendingOrderResponse })
+  async getAllMerchantDecisionAcceptedOrder(
+    @Req() req: { user: User },
+    @Query('currentPage') currentPage: string,
+    @Query('pageSize') pageSize: string,
+    @Res() res: Response,
+  ) {
+    let response: GetAllMerchantDecisionPendingOrderResponse;
+
+    let fetchedOrders: { count: number; rows: Order[] };
+    try {
+      fetchedOrders = await this.orderService.findMerchantDecisionAccepted(
+        Number(currentPage),
+        Number(pageSize),
+        req.user.id,
+      );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Orders fetched successfully',
+      valid: true,
+      data: fetchedOrders,
+    };
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  @Get('getAllMerchantDecisionRejectedOrder')
+  @ApiQuery({
+    name: 'currentPage',
+    type: String,
+    description: 'Current Page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    description: 'Page Size',
+    required: true,
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('access-token')
+  @ApiResponse({ type: GetAllMerchantDecisionPendingOrderResponse })
+  async getAllMerchantDecisionRejectedOrder(
+    @Req() req: { user: User },
+    @Query('currentPage') currentPage: string,
+    @Query('pageSize') pageSize: string,
+    @Res() res: Response,
+  ) {
+    let response: GetAllMerchantDecisionPendingOrderResponse;
+
+    let fetchedOrders: { count: number; rows: Order[] };
+    try {
+      fetchedOrders = await this.orderService.findMerchantDecisionRejected(
+        Number(currentPage),
+        Number(pageSize),
+        req.user.id,
+      );
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Orders fetched successfully',
+      valid: true,
+      data: fetchedOrders,
+    };
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  @Get('getOrder')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('access-token')
+  @ApiQuery({
+    type: String,
+    required: true,
+    name: 'orderId',
+    description: 'Order Id',
+  })
+  @ApiOperation({
+    summary: 'Get Order',
+    description: 'Get Order details with orderId',
+  })
+  @ApiResponse({ type: GetOrderResponse })
+  async getOrder(
+    @Req() req: { user: User },
+    @Query('orderId') orderId: string,
+    @Res() res: Response,
+  ) {
+    let response: GetOrderResponse;
+
+    let fetchedOrder: Order;
+    try {
+      fetchedOrder = await this.orderService.findOrderByIdWithData(orderId);
+    } catch (error) {
+      this.logger.error(error);
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    response = {
+      message: 'Orders fetched successfully',
+      valid: true,
+      data: fetchedOrder,
     };
     return res.status(HttpStatus.OK).json(response);
   }

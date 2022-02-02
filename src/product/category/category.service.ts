@@ -4,6 +4,7 @@ import { CATEGORY_REPOSITORY } from 'src/core/constants/constants';
 import { createCategoryData } from './dto/param.interface';
 import { Product } from '../product.entity';
 import { Image } from '../image/image.entity';
+import { Review } from 'src/review/review.entity';
 
 @Injectable()
 export class CategoryService {
@@ -61,7 +62,7 @@ export class CategoryService {
         {
           model: Product,
           limit: 5,
-          include: [Image, Category],
+          include: [Image, Category, Review],
           where: { productApproved: true },
         },
       ],

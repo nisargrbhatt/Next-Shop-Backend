@@ -1,8 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ORDER_REPOSITORY } from 'src/core/constants/constants';
 import { Price } from 'src/price/price.entity';
+import { Category } from 'src/product/category/category.entity';
 import { Image } from 'src/product/image/image.entity';
 import { Product } from 'src/product/product.entity';
+import { Review } from 'src/review/review.entity';
 import { Address } from 'src/user/addresses/address.entity';
 import { User } from 'src/user/user.entity';
 import { Payment } from '../payment/payment.entity';
@@ -182,7 +184,14 @@ export class OrderService {
   async findOrderByIdWithData(id: string): Promise<Order> {
     return await this.OrderRepository.findByPk<Order>(id, {
       include: [
-        { model: Product, include: [{ model: Image, limit: 1 }] },
+        {
+          model: Product,
+          include: [
+            { model: Image, limit: 1 },
+            { model: Category },
+            { model: Review },
+          ],
+        },
         { model: Address },
         { model: Price },
         { model: User, as: 'user' },

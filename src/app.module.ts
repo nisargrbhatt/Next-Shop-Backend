@@ -17,6 +17,7 @@ import { KycModule } from './kyc/kyc.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronModule } from './cron/cron.module';
+import { AnalyticModule } from './analytic/analytic.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { CronModule } from './cron/cron.module';
     TransactionModule,
     ScheduleModule.forRoot(),
     CronModule,
+    AnalyticModule,
   ],
   controllers: [AppController],
   providers: [AppService, SharedService, ...AppProviders],

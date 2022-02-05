@@ -153,6 +153,14 @@ export class Order extends Model<Order> {
   })
   merchantId: string;
 
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.TEXT,
+    allowNull: false,
+    comment: 'Manufacturer id',
+  })
+  manufacturerId: string;
+
   @BelongsTo(() => User, { foreignKey: 'userId', as: 'user' })
   user: User;
 
@@ -170,6 +178,12 @@ export class Order extends Model<Order> {
     as: 'merchant',
   })
   merchant: User;
+
+  @BelongsTo(() => User, {
+    foreignKey: 'manufacturerId',
+    as: 'manufacturer',
+  })
+  manufacturer: User;
 
   @HasMany(() => Payment)
   payment: Payment[];

@@ -160,7 +160,12 @@ export class ProductService {
           },
         ],
       },
-      include: [{ model: User }, { model: Image }, { model: Category }],
+      include: [
+        { model: User },
+        { model: Image },
+        { model: Category },
+        { model: Review },
+      ],
       limit: pageSize,
       offset: (currentPage - 1) * pageSize,
       col: 'id',

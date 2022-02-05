@@ -124,6 +124,27 @@ export class TransactionService {
     return await this.rpInstance.orders.fetchPayments(orderId);
   }
 
+  async fetchAllAuthorisedOrdersByDate(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<number> {
+    const orders = await this.rpInstance.orders.all({
+      from: Math.floor(startDate.getTime() / 1000),
+      to: Math.floor(endDate.getTime() / 1000),
+      authorized: true,
+      count: 100,
+    });
+    return orders.items.length;
+  }
+  async fetchAllOrdersByDate(startDate: Date, endDate: Date): Promise<number> {
+    const orders = await this.rpInstance.orders.all({
+      from: Math.floor(startDate.getTime() / 1000),
+      to: Math.floor(endDate.getTime() / 1000),
+      count: 100,
+    });
+    return orders.items.length;
+  }
+
   //*--------------- Payment ---------------*//
   //! This is used to fetch the amount from Razorpay account to your bussiness account
   async capturePayment(
@@ -146,6 +167,18 @@ export class TransactionService {
 
   async fetchPayment(paymentId: string): Promise<CapturedPayment> {
     return await this.rpInstance.payments.fetch(paymentId);
+  }
+
+  async fetchAllPaymentsByDate(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<number> {
+    const orders = await this.rpInstance.payments.all({
+      from: Math.floor(startDate.getTime() / 1000),
+      to: Math.floor(endDate.getTime() / 1000),
+      count: 100,
+    });
+    return orders.items.length;
   }
 
   //*--------------- Refund ---------------*//

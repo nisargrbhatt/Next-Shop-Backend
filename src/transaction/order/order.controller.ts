@@ -252,6 +252,7 @@ export class OrderController {
       order_status: false,
       priceId: body.priceId,
       productId: body.productId,
+      manufacturerId: fetchedProduct.userId,
       rp_customer_id: req.user.rp_customer_id,
       rp_order_id: razorpayCreatedOrder.id,
       amount: finalPrice,

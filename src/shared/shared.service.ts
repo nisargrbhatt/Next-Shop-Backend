@@ -5,6 +5,8 @@ import { Bucket } from '@google-cloud/storage';
 import { getTransport } from './smtp';
 import { ConfigService } from '@nestjs/config';
 
+import { format, startOfMonth, endOfMonth } from 'date-fns';
+
 @Injectable()
 export class SharedService {
   private readonly logger = new Logger(SharedService.name);
@@ -194,5 +196,23 @@ export class SharedService {
       OTP += digits[Math.floor(Math.random() * 10)];
     }
     return OTP;
+  }
+
+  getPast12MonthsDates(): Array<{ label: string; start: Date; end: Date }> {
+    const labels: Array<{ label: string; start: Date; end: Date }> = [];
+
+    const now = new Date();
+
+    for (let i = 11; i >= 0; i--) {
+      const dateObj = new Date().setMonth(now.getMonth() - i);
+      const label = format(new Date(dateObj), 'MMM, yyyy');
+      labels.push({
+        label: label,
+        start: startOfMonth(new Date(dateObj)),
+        end: endOfMonth(new Date(dateObj)),
+      });
+    }
+
+    return labels;
   }
 }

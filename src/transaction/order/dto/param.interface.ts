@@ -7,5 +7,6 @@ export interface CreateServerOrderData {
   productId: string;
   priceId: string;
   merchantId: string;
+  manufacturerId: string;
   amount: number;
 }

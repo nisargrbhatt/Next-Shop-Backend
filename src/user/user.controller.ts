@@ -33,6 +33,7 @@ import { Response } from 'express';
 import {
   EmailOtpCheckResponse,
   GetEmailOtpResponse,
+  GetUserBasicDataResponse,
   GetUserResponse,
   OAuthCallData,
   OAuthCallResponse,
@@ -601,6 +602,59 @@ export class UserController {
       data: responseData,
     };
 
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  @Get('getUserBasicData')
+  @ApiQuery({
+    name: 'userId',
+    type: String,
+    required: true,
+  })
+  async getUserBasicData(
+    @Query('userId') userId: string,
+    @Res() res: Response,
+  ) {
+    let response: GetUserBasicDataResponse;
+
+    let userData: User;
+    try {
+      userData = await this.userService.findOneByPk(userId);
+    } catch (error) {
+      response = {
+        message: 'Something went wrong',
+        valid: false,
+        error: NS_002,
+        dialog: {
+          header: 'Server error',
+          message: 'There is some error in server. Please try again later',
+        },
+      };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    if (!userData) {
+      response = {
+        message: 'Not authorized for this operation',
+        valid: false,
+        error: NS_003,
+        dialog: {
+          header: 'Not Authorized',
+          message: 'You are not authorized for this operation',
+        },
+      };
+      return res.status(HttpStatus.UNAUTHORIZED).json(response);
+    }
+
+    response = {
+      message: 'User data fetched successfully',
+      valid: true,
+      data: {
+        email: userData.email,
+        id: userData.id,
+        name: userData.name,
+      },
+    };
     return res.status(HttpStatus.OK).json(response);
   }
 }

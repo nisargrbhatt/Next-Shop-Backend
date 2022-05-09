@@ -24,7 +24,7 @@ export class ProductService {
     updateProductData: any,
     id: string,
     userId: string,
-  ): Promise<[number, Product[]]> {
+  ): Promise<[number]> {
     return await this.ProductRepository.update<Product>(updateProductData, {
       where: {
         id,
@@ -35,7 +35,7 @@ export class ProductService {
   async updateByAdmin(
     updateProductData: any,
     id: string,
-  ): Promise<[number, Product[]]> {
+  ): Promise<[number]> {
     return await this.ProductRepository.update<Product>(updateProductData, {
       where: {
         id,
@@ -298,7 +298,7 @@ export class ProductService {
     currentCount: number,
     reason: string,
     productId: string,
-  ): Promise<[number, Product[]]> {
+  ): Promise<[number]> {
     return await this.ProductRepository.update<Product>(
       {
         decline_count: currentCount + 1,
@@ -314,10 +314,7 @@ export class ProductService {
     );
   }
 
-  async approvalRenew(
-    id: string,
-    userId: string,
-  ): Promise<[number, Product[]]> {
+  async approvalRenew(id: string, userId: string): Promise<[number]> {
     return await this.ProductRepository.update<Product>(
       {
         approval_status: false,

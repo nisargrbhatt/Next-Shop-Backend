@@ -16,10 +16,7 @@ export class PaymentService {
     return await this.PaymentRepository.create(createPaymentData);
   }
 
-  async update(
-    updatePaymentData: any,
-    id: string,
-  ): Promise<[number, Payment[]]> {
+  async update(updatePaymentData: any, id: string): Promise<[number]> {
     return await this.PaymentRepository.update(updatePaymentData, {
       where: { id },
     });

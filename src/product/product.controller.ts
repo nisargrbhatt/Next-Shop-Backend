@@ -419,7 +419,7 @@ export class ProductController {
           return res.status(HttpStatus.UNAUTHORIZED).json(response);
         }
       } else {
-        let updatedProduct: [number, Product[]];
+        let updatedProduct: [number];
         try {
           updatedProduct = await this.productService.productDeclined(
             fetchedProduct.decline_count,
@@ -1075,7 +1075,7 @@ export class ProductController {
   ): Promise<Response<RenewTheApprovalForProductResponse>> {
     let response: RenewTheApprovalForProductResponse;
 
-    let approvalUpdated: [number, Product[]];
+    let approvalUpdated: [number];
     try {
       approvalUpdated = await this.productService.approvalRenew(
         body.productId,

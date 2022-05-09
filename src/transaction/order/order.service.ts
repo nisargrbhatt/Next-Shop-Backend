@@ -23,7 +23,7 @@ export class OrderService {
     return await this.OrderRepository.create<Order>(createOrderData);
   }
 
-  async update(updateOrderData: any, id: string): Promise<[number, Order[]]> {
+  async update(updateOrderData: any, id: string): Promise<[number]> {
     return await this.OrderRepository.update<Order>(updateOrderData, {
       where: {
         id,
@@ -67,7 +67,7 @@ export class OrderService {
     id: string,
     userId: string,
     refundId: string,
-  ): Promise<[number, Order[]]> {
+  ): Promise<[number]> {
     return await this.OrderRepository.update<Order>(
       {
         order_cancel: true,

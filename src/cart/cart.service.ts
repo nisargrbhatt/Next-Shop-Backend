@@ -22,7 +22,7 @@ export class CartService {
     updateCartData: any,
     id: string,
     userId: string,
-  ): Promise<[number, Cart[]]> {
+  ): Promise<[number]> {
     return await this.CartRepository.update<Cart>(updateCartData, {
       where: {
         id,
@@ -54,7 +54,7 @@ export class CartService {
     quantity: number,
     id: string,
     userId: string,
-  ): Promise<[number, Cart[]]> {
+  ): Promise<[number]> {
     return await this.CartRepository.update<Cart>(
       {
         quantity,

@@ -21,10 +21,7 @@ export class KYCImageService {
     return await this.KYCImageRepository.create<KYCImage>(createImageData);
   }
 
-  async update(
-    updateImageData: any,
-    id: string,
-  ): Promise<[number, KYCImage[]]> {
+  async update(updateImageData: any, id: string): Promise<[number]> {
     return await this.KYCImageRepository.update<KYCImage>(updateImageData, {
       where: {
         id,

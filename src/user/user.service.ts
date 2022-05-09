@@ -13,7 +13,7 @@ export class UserService {
     return await this.UserRepository.create<User>(createUserData);
   }
 
-  async update(updateUserData: any, id: string): Promise<[number, User[]]> {
+  async update(updateUserData: any, id: string): Promise<[number]> {
     return await this.UserRepository.update<User>(updateUserData, {
       where: {
         id,
